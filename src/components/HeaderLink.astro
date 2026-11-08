@@ -1,24 +1,80 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
+import { normalizePath, stripLocale } from '../i8n';
 
 type Props = HTMLAttributes<'a'>;
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const subpath = pathname.match(/[^\/]+/g);
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+const pathname = stripLocale(Astro.url.pathname);
+const current = normalizePath(pathname);
+const target = normalizePath(stripLocale(href || '/'));
+const currentRoot = '/' + (current.match(/[^\/]+/g)?.[0] || '');
+const isActive = target === current || target === currentRoot;
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} {...props}>
+<a
+	href={href}
+	class:list={['nav-link', className, { 'is-active': isActive }]}
+	aria-current={isActive ? 'page' : undefined}
+	{...props}
+>
 	<slot />
 </a>
+
 <style>
-	a {
-		display: inline-block;
+	.nav-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 7px 12px;
+		border-radius: 999px;
+		color: var(--ink-soft);
+		font-size: 0.88rem;
 		text-decoration: none;
+		white-space: nowrap;
+		transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
 	}
-	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
+
+	.nav-link:hover {
+		color: var(--ink);
+		background: rgba(34, 34, 42, 0.055);
+		transform: translateY(-1px);
+	}
+
+	.nav-link.is-active {
+		color: #fff;
+		background: var(--ink);
+	}
+
+	.nav-index {
+		transform: translateY(-2px);
+		font-size: 0.55rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		opacity: 0.45;
+	}
+
+	.nav-link.is-active .nav-index {
+		color: var(--accent-4);
+		opacity: 1;
+	}
+
+	@media (max-width: 640px) {
+		.nav-link {
+			gap: 4px;
+			padding: 6px 8px;
+			font-size: 0.8rem;
+		}
+
+		.nav-index {
+			display: none;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.nav-link {
+			padding: 5px 5px;
+			font-size: 0.75rem;
+		}
 	}
 </style>

@@ -1,0 +1,143 @@
+---
+interface Props {
+	tags: string[];
+	total: number;
+	allLabel: string;
+	filterLabel: string;
+	countTemplate: string;
+}
+
+const { tags, total, allLabel, filterLabel, countTemplate } = Astro.props;
+---
+
+<div class="tag-filter" data-tag-filter>
+	<div class="tag-filter__chips" role="group" aria-label={filterLabel}>
+		<button class="tag-chip is-active" type="button" data-tag="all" aria-pressed="true">
+			{allLabel}
+		</button>
+		{tags.map((tag) => (
+			<button class="tag-chip" type="button" data-tag={tag} aria-pressed="false">
+				#{tag}
+			</button>
+		))}
+	</div>
+	<p
+		class="tag-filter__status"
+		data-filter-status
+		data-count-template={countTemplate}
+		aria-live="polite"
+	>
+		{countTemplate.replace('{count}', String(total))}
+	</p>
+</div>
+
+<script>
+	const setupTagFilters = () => {
+		document.querySelectorAll('[data-tag-filter]').forEach((filter) => {
+			if (filter.dataset.ready === 'true') return;
+			filter.dataset.ready = 'true';
+
+			const chips = Array.from(filter.querySelectorAll('[data-tag]'));
+			const section = filter.closest('section');
+			const grid = section?.querySelector('[data-card-grid]');
+			const status = section?.querySelector('[data-filter-status]');
+			if (!grid) return;
+
+			const cards = Array.from(grid.querySelectorAll('[data-card]'));
+			const template = status?.dataset.countTemplate || '{count}';
+
+			const apply = (tag, updateUrl = true) => {
+				let visible = 0;
+
+				cards.forEach((card) => {
+					const cardTags = (card.dataset.tags || '').split('|').filter(Boolean);
+					const show = tag === 'all' || cardTags.includes(tag);
+					card.classList.toggle('is-hidden', !show);
+					card.classList.remove('card-pop');
+					if (show) {
+						void card.offsetWidth;
+						card.classList.add('card-pop');
+						visible += 1;
+					}
+				});
+
+				chips.forEach((chip) => {
+					const active = chip.dataset.tag === tag;
+					chip.classList.toggle('is-active', active);
+					chip.setAttribute('aria-pressed', String(active));
+				});
+
+				if (status) {
+					status.textContent = template.replace('{count}', String(visible));
+				}
+
+				if (updateUrl) {
+					const url = new URL(window.location.href);
+					if (tag === 'all') url.searchParams.delete('tag');
+					else url.searchParams.set('tag', tag);
+					window.history.replaceState({}, '', url);
+				}
+			};
+
+			chips.forEach((chip) => {
+				chip.addEventListener('click', () => apply(chip.dataset.tag || 'all'));
+			});
+
+			const initial = new URLSearchParams(window.location.search).get('tag');
+			if (initial && chips.some((chip) => chip.dataset.tag === initial)) {
+				apply(initial, false);
+			}
+		});
+	};
+
+	setupTagFilters();
+</script>
+
+<style>
+	.tag-filter {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 14px;
+		margin-bottom: 30px;
+		padding-bottom: 18px;
+		border-bottom: 1px dashed var(--line);
+	}
+
+	.tag-filter__chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.tag-chip {
+		padding: 7px 15px;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.7);
+		color: var(--ink-soft);
+		font-size: 0.82rem;
+		line-height: 1.4;
+		transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease,
+			transform 0.25s ease;
+	}
+
+	.tag-chip:hover {
+		color: var(--ink);
+		border-color: var(--accent);
+		transform: translateY(-2px);
+	}
+
+	.tag-chip.is-active {
+		color: #fff;
+		background: var(--ink);
+		border-color: var(--ink);
+	}
+
+	.tag-filter__status {
+		margin: 0;
+		font-size: 0.8rem;
+		color: var(--ink-faint);
+	}
+</style>

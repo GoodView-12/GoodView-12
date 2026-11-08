@@ -1,0 +1,79 @@
+<div class="waves" aria-hidden="true">
+	<div class="wave wave--back">
+		<svg viewBox="0 0 2880 160" preserveAspectRatio="none">
+			<path
+				d="M0,88 C180,132 360,44 720,88 C1080,132 1260,44 1440,88 C1620,132 1800,44 2160,88 C2520,132 2700,44 2880,88 L2880,160 L0,160 Z"
+			></path>
+		</svg>
+	</div>
+	<div class="wave wave--mid">
+		<svg viewBox="0 0 2880 160" preserveAspectRatio="none">
+			<path
+				d="M0,108 C240,48 480,168 720,108 C960,48 1200,168 1440,108 C1680,48 1920,168 2160,108 C2400,48 2640,168 2880,108 L2880,160 L0,160 Z"
+			></path>
+		</svg>
+	</div>
+	<div class="wave wave--front">
+		<svg viewBox="0 0 2880 160" preserveAspectRatio="none">
+			<path
+				d="M0,126 C220,86 500,166 720,126 C940,86 1220,166 1440,126 C1660,86 1940,166 2160,126 C2380,86 2660,166 2880,126 L2880,160 L0,160 Z"
+			></path>
+		</svg>
+	</div>
+</div>
+
+<style>
+	.waves {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: -1px;
+		height: clamp(90px, 12vw, 170px);
+		pointer-events: none;
+		z-index: 2;
+		overflow: hidden;
+	}
+
+	.wave {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 200%;
+		height: 100%;
+		animation: waveShift 14s linear infinite;
+	}
+
+	.wave svg {
+		display: block;
+		width: 100%;
+		height: 100%;
+		fill: currentColor;
+	}
+
+	.wave--back {
+		bottom: 18px;
+		color: rgba(123, 156, 255, 0.45);
+		animation-duration: 19s;
+	}
+
+	.wave--mid {
+		bottom: 9px;
+		color: rgba(116, 214, 191, 0.55);
+		animation-duration: 15s;
+		animation-direction: reverse;
+	}
+
+	.wave--front {
+		color: var(--paper);
+		animation-duration: 11s;
+	}
+
+	@keyframes waveShift {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
+	}
+</style>

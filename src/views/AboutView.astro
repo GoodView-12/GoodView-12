@@ -1,0 +1,182 @@
+---
+import { AVATAR_IMAGE, SOCIAL_LINKS } from '../consts';
+import { LOCALE_NAME, LOCALES, localizePath, t, type Locale } from '../i8n';
+import Layout from '../layouts/Layout.astro';
+
+interface Props {
+	locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = t[locale];
+const languageLinks = LOCALES.map((code) => ({
+	code,
+	name: LOCALE_NAME[code],
+	href: localizePath('/about', code),
+	active: code === locale,
+}));
+---
+
+<Layout title={copy.meta.aboutTitle} description={copy.meta.aboutDescription} locale={locale}>
+	<section class="page container about">
+		<div class="about__card">
+			<img class="about__avatar" src={AVATAR_IMAGE} alt={copy.a11y.avatar} />
+			<div>
+				<p class="eyebrow">{copy.about.eyebrow}</p>
+				<h1>{copy.about.title}</h1>
+				<p class="about__lead">{copy.about.lead}</p>
+			</div>
+		</div>
+
+		<div class="about__body">
+			<h2>{copy.about.siteHeading}</h2>
+			{copy.about.siteBody.map((paragraph) => <p>{paragraph}</p>)}
+
+			<h2>{copy.about.findHeading}</h2>
+			<ul class="about__links">
+				{SOCIAL_LINKS.map((link) => (
+					<li>
+						<a
+							href={link.href}
+							target={link.external ? '_blank' : undefined}
+							rel="noopener noreferrer"
+						>
+							{copy.common.social[link.key]} ↗
+						</a>
+					</li>
+				))}
+			</ul>
+
+			<div class="about__langs">
+				{languageLinks.map((link) => (
+					<a
+						class:list={['about__lang', { 'is-active': link.active }]}
+						href={link.href}
+						lang={link.code}
+						aria-current={link.active ? 'true' : undefined}
+					>
+						{link.name}
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.about {
+		max-width: 900px;
+	}
+
+	.about__card {
+		display: flex;
+		gap: 26px;
+		align-items: center;
+		padding: 28px;
+		margin-bottom: 40px;
+		background: linear-gradient(150deg, #fff 0%, #fff 58%, var(--accent-soft) 160%);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-card);
+		animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	}
+
+	.about__avatar {
+		flex-shrink: 0;
+		width: 150px;
+		height: 150px;
+		object-fit: cover;
+		border: 4px solid #fff;
+		border-radius: 36px;
+		box-shadow: 0 20px 40px -24px rgba(34, 34, 42, 0.7);
+	}
+
+	.about__card h1 {
+		margin: 0 0 12px;
+		font-size: clamp(1.7rem, 4vw, 2.4rem);
+	}
+
+	.about__lead {
+		margin: 0;
+		color: var(--ink-soft);
+	}
+
+	.about__body {
+		max-width: 760px;
+		color: var(--ink-soft);
+	}
+
+	.about__body h2 {
+		margin-top: 32px;
+		padding-left: 12px;
+		border-left: 4px solid var(--accent);
+		color: var(--ink);
+		font-size: 1.2rem;
+	}
+
+	.about__body p {
+		line-height: 1.9;
+	}
+
+	.about__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		padding: 0;
+		list-style: none;
+	}
+
+	.about__links a {
+		display: inline-flex;
+		padding: 7px 16px;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: #fff;
+		font-size: 0.82rem;
+		text-decoration: none;
+		transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+	}
+
+	.about__links a:hover {
+		border-color: var(--accent);
+		background: var(--accent-soft);
+		transform: translateY(-2px);
+	}
+
+	.about__langs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 34px;
+		padding-top: 22px;
+		border-top: 1px dashed var(--line);
+	}
+
+	.about__lang {
+		padding: 5px 14px;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		color: var(--ink-faint);
+		font-size: 0.74rem;
+		text-decoration: none;
+		transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+	}
+
+	.about__lang:hover {
+		color: var(--ink);
+		border-color: var(--accent);
+	}
+
+	.about__lang.is-active {
+		color: #fff;
+		background: var(--ink);
+		border-color: var(--ink);
+	}
+
+	@media (max-width: 620px) {
+		.about__card {
+			flex-direction: column;
+			text-align: center;
+		}
+	}
+</style>

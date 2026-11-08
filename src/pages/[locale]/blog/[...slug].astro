@@ -1,0 +1,36 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import { ALTERNATE_LOCALES, LOCALE_PARAM, localeFromParam } from '../../../i8n';
+import ArticleView from '../../../views/ArticleView.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return ALTERNATE_LOCALES.flatMap((locale) =>
+		posts.map((post) => ({
+			params: { locale: LOCALE_PARAM[locale], slug: post.id },
+			props: { post },
+		})),
+	);
+}
+
+type Props = {
+	post: CollectionEntry<'blog'>;
+};
+
+const { post } = Astro.props;
+const locale = localeFromParam(Astro.params.locale);
+const { Content } = await render(post);
+---
+
+<ArticleView
+	locale={locale}
+	kind="blog"
+	title={post.data.title}
+	description={post.data.description}
+	pubDate={post.data.pubDate}
+	updatedDate={post.data.updatedDate}
+	cover={post.data.cover}
+	tags={post.data.tags}
+>
+	<Content />
+</ArticleView>

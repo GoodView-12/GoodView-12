@@ -1,0 +1,14 @@
+---
+import { ALTERNATE_LOCALES, LOCALE_PARAM, localeFromParam } from '../../i8n';
+import AboutView from '../../views/AboutView.astro';
+
+export function getStaticPaths() {
+	return ALTERNATE_LOCALES.map((locale) => ({
+		params: { locale: LOCALE_PARAM[locale] },
+	}));
+}
+
+const locale = localeFromParam(Astro.params.locale);
+---
+
+<AboutView locale={locale} />

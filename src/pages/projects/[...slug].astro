@@ -1,0 +1,34 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import ArticleView from '../../views/ArticleView.astro';
+
+export async function getStaticPaths() {
+	const projects = await getCollection('projects');
+	return projects.map((project) => ({
+		params: { slug: project.id },
+		props: { project },
+	}));
+}
+
+type Props = {
+	project: CollectionEntry<'projects'>;
+};
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<ArticleView
+	locale="zh-CN"
+	kind="project"
+	title={project.data.title}
+	description={project.data.description}
+	pubDate={project.data.pubDate}
+	updatedDate={project.data.updatedDate}
+	cover={project.data.cover}
+	tags={project.data.tags}
+	demo={project.data.demo}
+	repo={project.data.repo}
+>
+	<Content />
+</ArticleView>
