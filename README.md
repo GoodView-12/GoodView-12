@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 吉辰良景的博客
 
 这是一个基于 [Astro](https://astro.build/) 搭建的个人网站，使用 Markdown 管理博客与项目内容，并支持简体中文、繁體中文和 English 三种语言。
@@ -104,3 +105,21 @@ goodview-blog/
 ├── package.json
 └── README.md
 ```
+=======
+## Hi there 👋
+
+<!--
+**GoodView-12/GoodView-12** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+
+Here are some ideas to get you started:
+
+- 🔭 I’m currently working on ...
+- 🌱 I’m currently learning ...
+- 👯 I’m looking to collaborate on ...
+- 🤔 I’m looking for help with ...
+- 💬 Ask me about ...
+- 📫 How to reach me: ...
+- 😄 Pronouns: ...
+- ⚡ Fun fact: ...
+-->
+>>>>>>> 3c9c17e72be3c18da9bbde0c4356adc6841c3b50
