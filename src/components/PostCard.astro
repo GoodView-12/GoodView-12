@@ -1,5 +1,5 @@
 ---
-import type { Locale } from '../i8n';
+import { resolveAsset, type Locale } from '../i8n';
 import FormattedDate from './FormattedDate.astro';
 
 interface Props {
@@ -18,7 +18,14 @@ const { href, title, description, cover, tags = [], date, locale } = Astro.props
 <article class="post-card" data-card data-tags={tags.join('|')}>
 	<a class="post-card__link" href={href}>
 		<div class="post-card__media">
-			<img src={cover} alt={title} loading="lazy" />
+			<img
+				src={resolveAsset(cover)}
+				alt={title}
+				width="1200"
+				height="675"
+				loading="lazy"
+				decoding="async"
+			/>
 			<span class="post-card__arrow" aria-hidden="true">↗</span>
 		</div>
 		<div class="post-card__body">
@@ -40,7 +47,7 @@ const { href, title, description, cover, tags = [], date, locale } = Astro.props
 		background: var(--card);
 		border: 1px solid var(--line);
 		border-radius: var(--radius);
-		box-shadow: var(--shadow-card);
+		box-shadow: var(--shadow-neu);
 		overflow: hidden;
 		transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
 			border-color 0.35s ease;
@@ -48,8 +55,8 @@ const { href, title, description, cover, tags = [], date, locale } = Astro.props
 
 	.post-card:hover {
 		transform: translateY(-6px);
-		border-color: rgba(34, 34, 42, 0.2);
-		box-shadow: var(--shadow-pop);
+		border-color: rgba(var(--shadow-rgb), 0.18);
+		box-shadow: var(--shadow-neu-hover);
 	}
 
 	.post-card__link {
@@ -88,7 +95,7 @@ const { href, title, description, cover, tags = [], date, locale } = Astro.props
 		width: 34px;
 		height: 34px;
 		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.92);
+		background: rgba(255, 253, 249, 0.92);
 		color: var(--ink);
 		font-size: 0.9rem;
 		opacity: 0;

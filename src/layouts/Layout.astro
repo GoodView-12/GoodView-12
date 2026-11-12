@@ -8,16 +8,17 @@ interface Props {
 	locale: Locale;
 	title: string;
 	description: string;
+	noindex?: boolean;
 }
 
-const { locale, title, description } = Astro.props;
+const { locale, title, description, noindex = false } = Astro.props;
 const copy = t[locale];
 ---
 
 <!doctype html>
 <html lang={HTML_LANG[locale]}>
 	<head>
-		<BaseHead locale={locale} title={title} description={description} />
+		<BaseHead locale={locale} title={title} description={description} noindex={noindex} />
 	</head>
 	<body>
 		<a class="skip-link" href="#main">{copy.a11y.skip}</a>

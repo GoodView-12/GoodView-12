@@ -26,55 +26,48 @@ const isActive = target === current || target === currentRoot;
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		padding: 7px 12px;
-		border-radius: 999px;
+		padding: 8px 16px;
+		border-radius: 14px;
 		color: var(--ink-soft);
-		font-size: 0.88rem;
+		font-size: 0.86rem;
+		font-weight: 600;
 		text-decoration: none;
 		white-space: nowrap;
-		transition: color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+		transition: color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease,
+			transform 0.25s ease;
 	}
 
 	.nav-link:hover {
 		color: var(--ink);
-		background: rgba(34, 34, 42, 0.055);
+		box-shadow:
+			-3px -3px 7px rgba(255, 253, 249, 0.9),
+			4px 4px 10px rgba(var(--shadow-rgb), 0.1);
 		transform: translateY(-1px);
 	}
 
 	.nav-link.is-active {
-		color: #fff;
-		background: var(--ink);
+		color: var(--accent-ink);
+		box-shadow:
+			inset 3px 3px 7px rgba(var(--shadow-rgb), 0.12),
+			inset -3px -3px 7px rgba(255, 253, 249, 0.95);
 	}
 
-	.nav-index {
-		transform: translateY(-2px);
-		font-size: 0.55rem;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		opacity: 0.45;
-	}
-
-	.nav-link.is-active .nav-index {
-		color: var(--accent-4);
-		opacity: 1;
+	.nav-link.is-active:hover {
+		transform: none;
 	}
 
 	@media (max-width: 640px) {
 		.nav-link {
 			gap: 4px;
-			padding: 6px 8px;
-			font-size: 0.8rem;
-		}
-
-		.nav-index {
-			display: none;
+			padding: 7px 10px;
+			font-size: 0.78rem;
 		}
 	}
 
 	@media (max-width: 480px) {
 		.nav-link {
-			padding: 5px 5px;
-			font-size: 0.75rem;
+			padding: 6px 7px;
+			font-size: 0.74rem;
 		}
 	}
 </style>

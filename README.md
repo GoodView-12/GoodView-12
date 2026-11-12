@@ -1,53 +1,46 @@
-<<<<<<< HEAD
 # 吉辰良景的博客
 
-这是一个基于 [Astro](https://astro.build/) 搭建的个人网站，使用 Markdown 管理博客与项目内容，并支持简体中文、繁體中文和 English 三种语言。
+基于 [Astro](https://astro.build/) 的个人博客，支持简体中文、繁體中文和 English。
 
-## 访问本博客
+## 在线地址
 
-网址：[goodview-github.io](https://goodview-12.github.io)  
-或者  
-[跳转到博客页面](https://goodview-12.github.io/blog)　[跳转到项目集页面](https://goodview-12.github.io/projects)  
-### 项目集在线工具链接
+- 博客首页：<https://goodview-12.github.io/blog/>
 
-角色雷达图制作工具：[https://goodview-12.github.io/tools/](https://goodview-12.github.io/tools/)
+## 功能
 
-## 语言版本
+- 查看博客文章
+- 查找项目
 
-| 语言 | 路径 |
-| --- | --- |
-| 简体中文（默认） | `/`、`/blog`、`/projects`、`/about` |
-| 繁體中文 | `/zh-tw/`、`/zh-tw/blog`、`/zh-tw/projects`、`/zh-tw/about` |
-| English | `/en/`、`/en/blog`、`/en/projects`、`/en/about` |
+## 目录结构
 
-右上角的语言切换会保留当前页面。文章和项目的 Markdown 内容不随语言变化。
-
-## 页面说明
-
-| 路径 | 说明 |
-| --- | --- |
-| `/` | 首页：大头图、动态海浪分界线、头像与联系方式、非对称功能卡片 |
-| `/blog` | 博客列表：按标签筛选，卡片展示封面、标题和简介 |
-| `/projects` | 项目集：与博客一致的标签筛选，点击可查看项目详情 |
-| `/about` | 关于页 |
-
-网站没有 404 页面，也没有 RSS。所有界面文案（导航、按钮、提示等）都集中在 `src/i8n.ts`。
-
-## 本地运行
-
-```bash
-npm install
-npm run dev
+```text
+goodview-blog/
+├── public/
+│   ├── images/            # 压缩后的头像、头图、封面
+│   ├── favicon.ico
+│   └── favicon.svg
+├── scripts/
+│   └── optimize-images.mjs
+├── src/
+│   ├── assets/            # 字体与文章占位图
+│   ├── components/        # 导航、页脚、卡片、目录、评论等
+│   ├── content/
+│   │   ├── blog/
+│   │   └── projects/
+│   ├── layouts/Layout.astro
+│   ├── pages/             # 默认语言页面 + [locale] 多语言页面
+│   ├── views/             # 各页面共享视图
+│   ├── styles/global.css
+│   ├── consts.ts          # 图片、导航、社交链接、Giscus 配置
+│   └── i8n.ts             # 三语言文案与 base-aware 路由工具
+├── astro.config.mjs
+└── package.json
 ```
-
-构建：`npm run build`，预览构建结果：`npm run preview`。
 
 ## 内容管理
 
 - 博客文章：`src/content/blog/*.md` 或 `*.mdx`
-- 项目：`src/content/projects/*.md`
-
-当前各保留了一个示例，照着新增文件即可。
+- 项目：`src/content/projects/*.md` 或 `*.mdx`
 
 文章 frontmatter：
 
@@ -55,71 +48,35 @@ npm run dev
 title: '文章标题'
 description: '文章简介，会显示在卡片上'
 pubDate: '2026-02-18'
-tags: ['Astro', '折腾']
-cover: 'https://example.com/cover.jpg'
 updatedDate: '2026-02-20' # 可选
+tags: ['Astro', '折腾']
+cover: '/images/cover-blog.webp'
 ```
 
-项目 frontmatter 额外支持：
+项目额外支持：
 
 ```yaml
-status: 'doing'  # idea / doing / done / archived
+status: 'doing' # idea / doing / done / archived
 demo: 'https://example.com'
 repo: 'https://github.com/your-name/your-repo'
 ```
 
-## 多语言文案
+## 文章锚点与目录
 
-`src/i8n.ts` 中包含三套字典和语言路由工具：
+- Markdown 的 `##`、`###` 标题会自动生成 `id`，文章页左侧会自动出现目录。
+- 直接访问 `https://goodview-12.github.io/blog/blog/rebuild/#这次改了什么` 即可跳到对应小节。
+- 鼠标悬停在标题右侧会出现 `#` 锚点，点击就能复制/分享该小节的地址。
+- 目录会随滚动高亮当前小节；窄屏下目录折叠在正文上方。
 
-- `t[locale]`：当前语言的全部界面文案
-- `LOCALE_PREFIX` / `LOCALE_PARAM`：语言前缀与路由参数
-- `localizePath(path, locale)`：把任意路径转换成目标语言路径
-- `getLocaleFromPath(pathname)`：从当前路径判断语言
+## 评论
 
-修改文案时只需要改这个文件，不需要动页面组件。
+评论组件位于 `src/components/Comments.astro`，有两种模式：
 
-## 替换图片
-
-首页头图、头像、默认封面和社交链接都集中在 `src/consts.ts`，每个占位链接旁都有 `TODO` 注释。
-文章和项目的封面直接写在各自 Markdown 的 `cover` 字段里，同样带有注释。
-
-## 文件结构
-
-```text
-goodview-blog/
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/       # 导航、页脚、卡片、标签筛选、海浪分界等
-│   ├── content/
-│   │   ├── blog/         # 博客文章
-│   │   └── projects/     # 项目 Markdown
-│   ├── layouts/          # Layout 全局布局
-│   ├── pages/            # 默认语言页面 + [locale] 多语言页面
-│   ├── views/            # 各页面共享视图
-│   ├── styles/           # 全局样式与设计变量
-│   ├── consts.ts         # 图片、导航与社交链接
-│   └── i8n.ts            # 三语言文案与路由工具
-├── astro.config.mjs
-├── package.json
-└── README.md
-```
-=======
-## Hi there 👋
-
-<!--
-**GoodView-12/GoodView-12** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
->>>>>>> 3c9c17e72be3c18da9bbde0c4356adc6841c3b50
+1. **Giscus（推荐，所有访客共享）**
+   - 在仓库 `Settings → General → Features` 中开启 Discussions。
+   - 打开 <https://giscus.app>，安装 Giscus App，选择仓库与 `Comments` 分类。
+   - 把生成的 `data-repo-id` 和 `data-category-id` 填入 `src/consts.ts` 的 `GISCUS_CONFIG`。
+   - 评论会按页面路径映射到 GitHub Discussions。
+2. **本地评论模式（默认兜底）**
+   - 未填写 Giscus ID 时自动启用。
+   - 评论保存在浏览器 `localStorage` 中，仅当前设备可见，适合本地预览和演示。

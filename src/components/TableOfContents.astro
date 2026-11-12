@@ -1,0 +1,197 @@
+---
+import type { Locale } from '../i8n';
+
+interface Heading {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	headings: Heading[];
+	title: string;
+	locale: Locale;
+}
+
+const { headings, title } = Astro.props;
+const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+---
+
+{
+	items.length > 0 && (
+		<details class="toc" data-toc open>
+			<summary class="toc__summary">
+				<span class="toc__dot" aria-hidden="true" />
+				{title}
+			</summary>
+			<nav class="toc__nav" aria-label={title}>
+				<ol class="toc__list">
+					{items.map((heading) => (
+						<li class:list={['toc__item', `toc__item--h${heading.depth}`]}>
+							<a href={`#${heading.slug}`} data-toc-link={heading.slug}>
+								{heading.text}
+							</a>
+						</li>
+					))}
+				</ol>
+			</nav>
+		</details>
+	)
+}
+
+<script>
+	const setupToc = () => {
+		document.querySelectorAll('[data-toc]').forEach((toc) => {
+			if (!(toc instanceof HTMLElement) || toc.dataset.ready === 'true') return;
+			toc.dataset.ready = 'true';
+
+			const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+			if (links.length === 0) return;
+
+			const headings = links
+				.map((link) => document.getElementById(link.dataset.tocLink || ''))
+				.filter((heading): heading is HTMLElement => heading !== null);
+			if (headings.length === 0) return;
+
+			const setActive = (slug: string) => {
+				links.forEach((link) => {
+					const active = link.dataset.tocLink === slug;
+					link.classList.toggle('is-active', active);
+					if (active) link.setAttribute('aria-current', 'location');
+					else link.removeAttribute('aria-current');
+				});
+			};
+
+			let ticking = false;
+			const update = () => {
+				ticking = false;
+				const offset = 140;
+				let current = headings[0]?.id || '';
+				for (const heading of headings) {
+					if (heading.getBoundingClientRect().top - offset <= 0) current = heading.id;
+					else break;
+				}
+
+				const doc = document.documentElement;
+				if (window.scrollY + window.innerHeight >= doc.scrollHeight - 4) {
+					current = headings[headings.length - 1]?.id || current;
+				}
+				setActive(current);
+			};
+
+			const onScroll = () => {
+				if (ticking) return;
+				ticking = true;
+				requestAnimationFrame(update);
+			};
+
+			window.addEventListener('scroll', onScroll, { passive: true });
+			window.addEventListener('resize', onScroll);
+
+			links.forEach((link) => {
+				link.addEventListener('click', () => {
+					if (window.matchMedia('(max-width: 1080px)').matches) {
+						toc.removeAttribute('open');
+					}
+				});
+			});
+
+			update();
+		});
+	};
+
+	setupToc();
+</script>
+
+<style>
+	.toc {
+		padding: 16px 18px;
+		border-radius: 18px;
+		background: var(--paper);
+		box-shadow:
+			-5px -5px 12px rgba(255, 253, 249, 0.95),
+			7px 9px 20px rgba(var(--shadow-rgb), 0.12);
+	}
+
+	.toc__summary {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		color: var(--ink-faint);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		list-style: none;
+		cursor: pointer;
+	}
+
+	.toc__summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.toc__dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--accent);
+		box-shadow: 0 0 0 4px var(--accent-soft);
+	}
+
+	.toc__nav {
+		margin-top: 12px;
+		border-left: 1px solid var(--line);
+	}
+
+	.toc__list {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.toc__item a {
+		display: block;
+		margin-left: -1px;
+		padding: 6px 10px;
+		border-left: 2px solid transparent;
+		border-radius: 0 9px 9px 0;
+		color: var(--ink-soft);
+		font-size: 0.8rem;
+		line-height: 1.5;
+		text-decoration: none;
+		transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+	}
+
+	.toc__item--h3 a {
+		padding-left: 22px;
+		font-size: 0.76rem;
+	}
+
+	.toc__item a:hover {
+		color: var(--ink);
+		background: rgba(255, 253, 249, 0.68);
+	}
+
+	.toc__item a.is-active {
+		border-left-color: var(--accent);
+		background: var(--accent-soft);
+		color: var(--accent-ink);
+		font-weight: 600;
+	}
+
+	@media (max-width: 1080px) {
+		.toc {
+			padding: 12px 16px;
+			border: 1px dashed var(--line);
+			background: rgba(255, 253, 249, 0.6);
+			box-shadow: none;
+		}
+
+		.toc__nav {
+			margin-top: 8px;
+		}
+	}
+</style>

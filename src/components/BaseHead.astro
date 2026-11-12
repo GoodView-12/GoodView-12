@@ -6,8 +6,11 @@ import {
 	DEFAULT_LOCALE,
 	HTML_LANG,
 	LOCALES,
+	ensureAssetBase,
 	localizePath,
+	stripBase,
 	t,
+	withBase,
 	type Locale,
 } from '../i8n';
 import { Font } from 'astro:assets';
@@ -17,44 +20,60 @@ interface Props {
 	description: string;
 	locale: Locale;
 	image?: ImageMetadata;
+	noindex?: boolean;
 }
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const { title, description, locale, image = FallbackImage } = Astro.props;
+const { title, description, locale, image = FallbackImage, noindex = false } = Astro.props;
 const copy = t[locale];
+const canonicalURL = new URL(withBase(stripBase(Astro.url.pathname)), Astro.site);
+const ogImage = new URL(ensureAssetBase(image.src), Astro.site);
 const alternates = LOCALES.map((code) => ({
 	code,
-	href: new URL(localizePath(Astro.url.pathname, code), Astro.site).href,
+	href: new URL(localizePath(stripBase(Astro.url.pathname), code), Astro.site).href,
 }));
-const xDefault = new URL(localizePath(Astro.url.pathname, DEFAULT_LOCALE), Astro.site).href;
+const xDefault = new URL(
+	localizePath(stripBase(Astro.url.pathname), DEFAULT_LOCALE),
+	Astro.site,
+).href;
 ---
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="icon" href="/favicon.ico" />
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+<link rel="icon" href={withBase('/favicon.ico')} sizes="any" />
+<link rel="apple-touch-icon" href={withBase('/images/avatar-256.webp')} />
+<link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 <meta name="generator" content={Astro.generator} />
 <meta name="author" content={copy.meta.author} />
-<meta name="theme-color" content="#f6f5f1" />
+<meta name="theme-color" content="#f6f1e9" />
 
 <Font cssVariable="--font-atkinson" preload />
 
 <link rel="canonical" href={canonicalURL} />
-{alternates.map((alternate) => (
-	<link rel="alternate" hreflang={HTML_LANG[alternate.code]} href={alternate.href} />
-))}
-<link rel="alternate" hreflang="x-default" href={xDefault} />
+{noindex ? (
+	<meta name="robots" content="noindex, follow" />
+) : (
+	<>
+		{alternates.map((alternate) => (
+			<link rel="alternate" hreflang={HTML_LANG[alternate.code]} href={alternate.href} />
+		))}
+		<link rel="alternate" hreflang="x-default" href={xDefault} />
+	</>
+)}
 
 <title>{title}</title>
 <meta name="description" content={description} />
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content={copy.meta.siteName} />
-<meta property="og:url" content={Astro.url} />
+<meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={title} />
 <meta property="og:locale" content={locale === 'zh-TW' ? 'zh_TW' : locale === 'en' ? 'en_US' : 'zh_CN'} />
 
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />

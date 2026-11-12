@@ -1,0 +1,560 @@
+---
+import { GISCUS_CONFIG } from '../consts';
+import { INTL_LOCALE, t, type Locale } from '../i8n';
+
+interface Props {
+	locale: Locale;
+	pageKey: string;
+	title: string;
+}
+
+const { locale, pageKey } = Astro.props;
+const copy = t[locale].comments;
+const giscus = GISCUS_CONFIG;
+const useGiscus = Boolean(giscus.repo && giscus.repoId && giscus.categoryId);
+const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-CN';
+---
+
+<section
+	class="comments"
+	id="comments"
+	aria-labelledby="comments-title"
+	data-comments
+	data-mode={useGiscus ? 'giscus' : 'local'}
+	data-page-key={pageKey}
+	data-intl-locale={INTL_LOCALE[locale]}
+	data-count-template={copy.count}
+	data-empty-text={copy.empty}
+	data-delete-text={copy.delete}
+	data-delete-confirm={copy.deleteConfirm}
+	data-name-required={copy.nameRequired}
+	data-content-required={copy.contentRequired}
+	data-too-long={copy.tooLong}
+	data-just-now={copy.justNow}
+	data-local-badge={copy.localBadge}
+	data-giscus-repo={giscus.repo}
+	data-giscus-repo-id={giscus.repoId}
+	data-giscus-category={giscus.category}
+	data-giscus-category-id={giscus.categoryId}
+	data-giscus-mapping={giscus.mapping}
+	data-giscus-reactions={giscus.reactionsEnabled}
+	data-giscus-input-position={giscus.inputPosition}
+	data-giscus-strict={giscus.strict}
+	data-giscus-lang={giscusLang}
+>
+	<header class="comments__head">
+		<div>
+			<h2 id="comments-title">{copy.title}</h2>
+			<p class="comments__lead">{copy.lead}</p>
+		</div>
+		{!useGiscus && (
+			<p class="comments__count" data-comment-count>
+				{copy.count.replace('{count}', '0')}
+			</p>
+		)}
+	</header>
+
+	{useGiscus ? (
+		<div class="comments__giscus" data-giscus-host></div>
+	) : (
+		<>
+			<p class="comments__notice">{copy.localNotice}</p>
+
+			<form class="comment-form" data-comment-form novalidate>
+				<div class="comment-form__field">
+					<label for="comment-name">{copy.nameLabel}</label>
+					<input
+						id="comment-name"
+						name="name"
+						type="text"
+						maxlength="24"
+						placeholder={copy.namePlaceholder}
+						autocomplete="nickname"
+						required
+					/>
+				</div>
+				<div class="comment-form__field">
+					<label for="comment-content">{copy.contentLabel}</label>
+					<textarea
+						id="comment-content"
+						name="content"
+						rows="4"
+						maxlength="1000"
+						placeholder={copy.contentPlaceholder}
+						required></textarea>
+				</div>
+				<div class="comment-form__foot">
+					<p class="comment-form__hint" data-form-hint aria-live="polite"></p>
+					<button class="btn btn--primary" type="submit">{copy.submit}</button>
+				</div>
+			</form>
+
+			<p class="comments__empty" data-comment-empty>{copy.empty}</p>
+			<ul class="comment-list" data-comment-list aria-live="polite"></ul>
+		</>
+	)}
+</section>
+
+<script>
+	interface StoredComment {
+		id: string;
+		name: string;
+		content: string;
+		createdAt: string;
+	}
+
+	const isComment = (value: unknown): value is StoredComment => {
+		if (!value || typeof value !== 'object') return false;
+		const comment = value as Partial<StoredComment>;
+		return (
+			typeof comment.id === 'string' &&
+			typeof comment.name === 'string' &&
+			typeof comment.content === 'string' &&
+			typeof comment.createdAt === 'string'
+		);
+	};
+
+	const makeId = () => {
+		if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+			return crypto.randomUUID();
+		}
+		return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+	};
+
+	const setupGiscus = (root: HTMLElement) => {
+		const host = root.querySelector('[data-giscus-host]');
+		if (!(host instanceof HTMLElement)) return;
+
+		const script = document.createElement('script');
+		script.src = 'https://giscus.app/client.js';
+		script.async = true;
+		script.crossOrigin = 'anonymous';
+
+		const attrs: Record<string, string | undefined> = {
+			'data-repo': root.dataset.giscusRepo,
+			'data-repo-id': root.dataset.giscusRepoId,
+			'data-category': root.dataset.giscusCategory,
+			'data-category-id': root.dataset.giscusCategoryId,
+			'data-mapping': root.dataset.giscusMapping,
+			'data-strict': root.dataset.giscusStrict || '0',
+			'data-reactions-enabled': root.dataset.giscusReactions || '1',
+			'data-emit-metadata': '0',
+			'data-input-position': root.dataset.giscusInputPosition || 'top',
+			'data-lang': root.dataset.giscusLang || 'zh-CN',
+			'data-loading': 'lazy',
+			'data-theme': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+		};
+
+		Object.entries(attrs).forEach(([key, value]) => {
+			if (value) script.setAttribute(key, value);
+		});
+
+		host.appendChild(script);
+	};
+
+	const setupLocal = (root: HTMLElement) => {
+		const list = root.querySelector('[data-comment-list]');
+		const empty = root.querySelector('[data-comment-empty]');
+		const countEl = root.querySelector('[data-comment-count]');
+		const form = root.querySelector('[data-comment-form]');
+		if (!(list instanceof HTMLElement) || !(form instanceof HTMLFormElement)) return;
+
+		const nameInput = form.querySelector('input[name="name"]');
+		const contentInput = form.querySelector('textarea[name="content"]');
+		const hint = form.querySelector('[data-form-hint]');
+		if (!(nameInput instanceof HTMLInputElement) || !(contentInput instanceof HTMLTextAreaElement)) {
+			return;
+		}
+
+		const data = root.dataset;
+		const storageKey = `goodview-blog:comments:v1:${data.pageKey || 'page'}`;
+		const nameKey = 'goodview-blog:comment-name';
+		const intlLocale = data.intlLocale || 'zh-CN';
+
+		const load = (): StoredComment[] => {
+			try {
+				const raw = window.localStorage.getItem(storageKey);
+				const parsed: unknown = raw ? JSON.parse(raw) : [];
+				return Array.isArray(parsed) ? parsed.filter(isComment) : [];
+			} catch {
+				return [];
+			}
+		};
+
+		const save = (items: StoredComment[]) => {
+			try {
+				window.localStorage.setItem(storageKey, JSON.stringify(items));
+			} catch {
+				/* 隐私模式下可能无法写入，忽略即可 */
+			}
+		};
+
+		const formatTime = (iso: string) => {
+			const date = new Date(iso);
+			if (Number.isNaN(date.getTime())) return '';
+			if (Date.now() - date.getTime() < 60_000) return data.justNow || '';
+			return new Intl.DateTimeFormat(intlLocale, {
+				dateStyle: 'medium',
+				timeStyle: 'short',
+			}).format(date);
+		};
+
+		let comments = load();
+
+		const render = () => {
+			list.textContent = '';
+
+			comments.forEach((comment) => {
+				const item = document.createElement('li');
+				item.className = 'comment-item';
+
+				const head = document.createElement('div');
+				head.className = 'comment-item__head';
+
+				const avatar = document.createElement('span');
+				avatar.className = 'comment-item__avatar';
+				avatar.setAttribute('aria-hidden', 'true');
+				avatar.textContent = Array.from(comment.name)[0] || '?';
+
+				const meta = document.createElement('div');
+				meta.className = 'comment-item__meta';
+
+				const name = document.createElement('strong');
+				name.textContent = comment.name;
+
+				const badge = document.createElement('span');
+				badge.className = 'comment-item__badge';
+				badge.textContent = data.localBadge || '';
+
+				const time = document.createElement('time');
+				time.dateTime = comment.createdAt;
+				time.textContent = formatTime(comment.createdAt);
+
+				const remove = document.createElement('button');
+				remove.type = 'button';
+				remove.className = 'comment-item__delete';
+				remove.textContent = data.deleteText || 'Delete';
+				remove.setAttribute('aria-label', `${data.deleteText || 'Delete'}: ${comment.name}`);
+				remove.addEventListener('click', () => {
+					if (!window.confirm(data.deleteConfirm || 'Delete this comment?')) return;
+					comments = comments.filter((entry) => entry.id !== comment.id);
+					save(comments);
+					render();
+				});
+
+				const body = document.createElement('p');
+				body.className = 'comment-item__body';
+				body.textContent = comment.content;
+
+				meta.append(name, badge, time);
+				head.append(avatar, meta, remove);
+				item.append(head, body);
+				list.append(item);
+			});
+
+			if (countEl) {
+				countEl.textContent = (data.countTemplate || '{count}').replace(
+					'{count}',
+					String(comments.length),
+				);
+			}
+			if (empty instanceof HTMLElement) empty.hidden = comments.length > 0;
+		};
+
+		try {
+			const rememberedName = window.localStorage.getItem(nameKey);
+			if (rememberedName) nameInput.value = rememberedName;
+		} catch {
+			/* ignore */
+		}
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+
+			const name = nameInput.value.trim();
+			const content = contentInput.value.trim();
+			const showHint = (text: string) => {
+				if (hint instanceof HTMLElement) hint.textContent = text;
+			};
+
+			if (!name) {
+				showHint(data.nameRequired || 'Name required');
+				nameInput.focus();
+				return;
+			}
+			if (!content) {
+				showHint(data.contentRequired || 'Comment required');
+				contentInput.focus();
+				return;
+			}
+			if (content.length > 1000) {
+				showHint(data.tooLong || 'Too long');
+				return;
+			}
+
+			comments.unshift({
+				id: makeId(),
+				name: name.slice(0, 24),
+				content,
+				createdAt: new Date().toISOString(),
+			});
+			save(comments);
+
+			try {
+				window.localStorage.setItem(nameKey, name.slice(0, 24));
+			} catch {
+				/* ignore */
+			}
+
+			contentInput.value = '';
+			showHint('');
+			render();
+		});
+
+		render();
+	};
+
+	const setupComments = () => {
+		document.querySelectorAll('[data-comments]').forEach((root) => {
+			if (!(root instanceof HTMLElement) || root.dataset.ready === 'true') return;
+			root.dataset.ready = 'true';
+
+			if (root.dataset.mode === 'giscus') setupGiscus(root);
+			else setupLocal(root);
+		});
+	};
+
+	setupComments();
+</script>
+
+<style>
+	.comments {
+		margin-top: 58px;
+		padding: 26px;
+		border-radius: var(--radius-lg);
+		background: var(--paper);
+		box-shadow:
+			-6px -6px 14px rgba(255, 253, 249, 0.95),
+			10px 12px 26px rgba(var(--shadow-rgb), 0.12);
+	}
+
+	.comments__head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 16px;
+	}
+
+	.comments h2 {
+		margin: 0;
+		font-size: 1.32rem;
+	}
+
+	.comments__lead {
+		margin: 4px 0 0;
+		color: var(--ink-faint);
+		font-size: 0.84rem;
+	}
+
+	.comments__count {
+		margin: 0;
+		padding: 4px 12px;
+		border-radius: 999px;
+		background: var(--accent-soft);
+		color: var(--accent-ink);
+		font-size: 0.74rem;
+		font-weight: 600;
+	}
+
+	.comments__notice {
+		margin: 0 0 18px;
+		padding: 11px 14px;
+		border-radius: 12px;
+		background: var(--accent-2-soft);
+		color: var(--ink-soft);
+		font-size: 0.78rem;
+		line-height: 1.7;
+	}
+
+	.comment-form {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		margin: 0 0 24px;
+	}
+
+	.comment-form__field {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.comment-form label {
+		color: var(--ink-faint);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+	}
+
+	.comment-form input,
+	.comment-form textarea {
+		width: 100%;
+		padding: 11px 14px;
+		border: 0;
+		border-radius: 12px;
+		background: var(--paper);
+		color: var(--ink);
+		font: inherit;
+		font-size: 0.9rem;
+		line-height: 1.7;
+		outline: none;
+		box-shadow:
+			inset 3px 3px 8px rgba(var(--shadow-rgb), 0.1),
+			inset -3px -3px 8px rgba(255, 253, 249, 0.95);
+		transition: box-shadow 0.25s ease;
+	}
+
+	.comment-form textarea {
+		min-height: 112px;
+		resize: vertical;
+	}
+
+	.comment-form input:focus,
+	.comment-form textarea:focus {
+		box-shadow:
+			inset 3px 3px 8px rgba(var(--shadow-rgb), 0.1),
+			inset -3px -3px 8px rgba(255, 253, 249, 0.95),
+			0 0 0 2px var(--accent-soft);
+	}
+
+	.comment-form__foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.comment-form__hint {
+		min-height: 1.2em;
+		margin: 0;
+		color: var(--accent-ink);
+		font-size: 0.78rem;
+	}
+
+	.comment-form .btn {
+		padding: 10px 22px;
+		font-size: 0.88rem;
+	}
+
+	.comments__empty {
+		margin: 0;
+		padding: 20px 0;
+		color: var(--ink-faint);
+		font-size: 0.86rem;
+		text-align: center;
+	}
+
+	.comment-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.comment-item {
+		padding: 16px 18px;
+		border-radius: 16px;
+		background: var(--paper-soft);
+		box-shadow:
+			inset 1px 1px 0 rgba(255, 253, 249, 0.9),
+			3px 4px 10px rgba(var(--shadow-rgb), 0.06);
+	}
+
+	.comment-item__head {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.comment-item__avatar {
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 34px;
+		height: 34px;
+		border-radius: 12px;
+		background: linear-gradient(135deg, var(--accent-soft), var(--accent-2-soft));
+		color: var(--accent-ink);
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+
+	.comment-item__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		color: var(--ink-faint);
+		font-size: 0.76rem;
+	}
+
+	.comment-item__meta strong {
+		color: var(--ink);
+		font-size: 0.86rem;
+	}
+
+	.comment-item__badge {
+		padding: 1px 7px;
+		border-radius: 999px;
+		background: var(--accent-2-soft);
+		color: var(--accent-2-ink);
+		font-size: 0.62rem;
+		font-weight: 600;
+	}
+
+	.comment-item__delete {
+		margin-left: auto;
+		padding: 4px 7px;
+		border: 0;
+		border-radius: 8px;
+		background: none;
+		color: var(--ink-faint);
+		font-size: 0.72rem;
+		transition: color 0.2s ease, background 0.2s ease;
+	}
+
+	.comment-item__delete:hover {
+		background: var(--accent-soft);
+		color: var(--accent-ink);
+	}
+
+	.comment-item__body {
+		margin: 10px 0 0;
+		color: var(--ink-soft);
+		font-size: 0.9rem;
+		line-height: 1.8;
+		overflow-wrap: anywhere;
+		white-space: pre-wrap;
+	}
+
+	.comments__giscus {
+		min-height: 160px;
+		margin-top: 8px;
+	}
+
+	@media (max-width: 620px) {
+		.comments {
+			padding: 18px;
+			border-radius: var(--radius);
+		}
+
+		.comments__head {
+			align-items: flex-start;
+		}
+	}
+</style>

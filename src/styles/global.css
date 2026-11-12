@@ -1,22 +1,39 @@
 :root {
-	--paper: #f6f5f1;
-	--paper-soft: #fbfaf7;
-	--card: #ffffff;
-	--ink: #22222a;
-	--ink-soft: #61616d;
-	--ink-faint: #9696a2;
-	--line: #e5e2da;
-	--accent: #ff7a9c;
-	--accent-soft: #ffe6ee;
-	--accent-2: #7b9cff;
-	--accent-2-soft: #e8eeff;
-	--accent-3: #74d6bf;
-	--accent-4: #ffcf6b;
+	--paper: #f6f1e9;
+	--paper-soft: #fcf8f1;
+	--card: #fffdf9;
+	--ink: #2c272b;
+	--ink-soft: #605960;
+	--ink-faint: #948a8f;
+	--line: #e7ded2;
+	--accent: #c46f86;
+	--accent-ink: #a64e66;
+	--accent-soft: #f6e3e7;
+	--accent-2: #7287a3;
+	--accent-2-ink: #4e6178;
+	--accent-2-soft: #e8ecf2;
+	--accent-3: #8aa088;
+	--accent-3-ink: #4f6650;
+	--accent-3-soft: #e9f0e7;
+	--accent-4: #d3a05c;
+	--accent-4-ink: #7a5620;
+	--accent-4-soft: #f7ecd9;
+	--shadow-rgb: 59, 44, 38;
 	--radius-lg: 28px;
 	--radius: 20px;
 	--radius-sm: 12px;
-	--shadow-card: 0 18px 40px -26px rgba(34, 34, 42, 0.4);
-	--shadow-pop: 0 30px 60px -30px rgba(34, 34, 42, 0.5);
+	--shadow-card: 0 18px 40px -26px rgba(var(--shadow-rgb), 0.35);
+	--shadow-pop: 0 30px 60px -30px rgba(var(--shadow-rgb), 0.48);
+	--shadow-neu:
+		-6px -6px 16px rgba(255, 253, 249, 0.95),
+		10px 12px 26px rgba(var(--shadow-rgb), 0.13),
+		inset 1px 1px 0 rgba(255, 253, 249, 0.95),
+		inset -1px -1px 0 rgba(var(--shadow-rgb), 0.05);
+	--shadow-neu-hover:
+		-8px -8px 20px rgba(255, 253, 249, 1),
+		16px 20px 38px rgba(var(--shadow-rgb), 0.18),
+		inset 1px 1px 0 rgba(255, 253, 249, 1),
+		inset -1px -1px 0 rgba(var(--shadow-rgb), 0.06);
 	--font-body: var(--font-atkinson), 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
 	--font-display: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', var(--font-atkinson), system-ui, sans-serif;
 	--container: 1180px;
@@ -31,6 +48,7 @@
 
 html {
 	scroll-behavior: smooth;
+	scroll-padding-top: 112px;
 	-webkit-text-size-adjust: 100%;
 }
 
@@ -43,11 +61,12 @@ body {
 	line-height: 1.75;
 	background-color: var(--paper);
 	background-image:
-		radial-gradient(900px 520px at 10% -10%, rgba(255, 122, 156, 0.16), transparent 62%),
-		radial-gradient(760px 480px at 94% -4%, rgba(123, 156, 255, 0.18), transparent 66%),
-		radial-gradient(circle at 1px 1px, rgba(34, 34, 42, 0.06) 1px, transparent 0);
-	background-size: auto, auto, 24px 24px;
-	background-attachment: fixed, fixed, fixed;
+		radial-gradient(900px 520px at 10% -10%, rgba(196, 111, 134, 0.13), transparent 62%),
+		radial-gradient(760px 480px at 94% -4%, rgba(114, 135, 163, 0.14), transparent 66%),
+		radial-gradient(640px 420px at 50% 108%, rgba(211, 160, 92, 0.08), transparent 72%),
+		radial-gradient(circle at 1px 1px, rgba(44, 39, 43, 0.055) 1px, transparent 0);
+	background-size: auto, auto, auto, 24px 24px;
+	background-attachment: fixed, fixed, fixed, fixed;
 }
 
 h1,
@@ -77,6 +96,15 @@ button {
 	font: inherit;
 	color: inherit;
 	cursor: pointer;
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent-2);
+	outline-offset: 3px;
+}
+
+[hidden] {
+	display: none !important;
 }
 
 ::selection {
@@ -161,23 +189,43 @@ main {
 
 .btn--primary {
 	background: var(--ink);
-	color: #fff;
-	box-shadow: 0 14px 30px -16px rgba(34, 34, 42, 0.8);
+	color: #fffdf9;
+	box-shadow: 0 14px 30px -16px rgba(var(--shadow-rgb), 0.7);
 }
 
 .btn--primary:hover {
-	background: #000;
+	background: #1d181b;
 }
 
 .btn--ghost {
-	background: rgba(255, 255, 255, 0.7);
+	background: rgba(255, 253, 249, 0.72);
 	border-color: var(--line);
 	color: var(--ink);
 }
 
 .btn--ghost:hover {
 	border-color: var(--ink);
-	background: #fff;
+	background: var(--card);
+}
+
+.btn--neu {
+	background: var(--paper);
+	border-color: transparent;
+	color: var(--ink);
+	box-shadow:
+		-5px -5px 12px rgba(255, 253, 249, 0.95),
+		7px 9px 18px rgba(var(--shadow-rgb), 0.14),
+		inset 1px 1px 0 rgba(255, 253, 249, 0.95);
+}
+
+.btn--neu:hover {
+	transform: translateY(-2px);
+	border-color: transparent;
+	background: var(--paper);
+	box-shadow:
+		-7px -7px 16px rgba(255, 253, 249, 1),
+		11px 14px 28px rgba(var(--shadow-rgb), 0.18),
+		inset 1px 1px 0 rgba(255, 253, 249, 1);
 }
 
 .page {
@@ -204,7 +252,7 @@ main {
 	background: var(--card);
 	border: 1px solid var(--line);
 	border-radius: var(--radius);
-	box-shadow: var(--shadow-card);
+	box-shadow: var(--shadow-neu);
 	color: var(--ink);
 	text-decoration: none;
 	overflow: hidden;
@@ -214,8 +262,8 @@ main {
 
 .card:hover {
 	transform: translateY(-6px);
-	border-color: rgba(34, 34, 42, 0.2);
-	box-shadow: var(--shadow-pop);
+	border-color: rgba(var(--shadow-rgb), 0.18);
+	box-shadow: var(--shadow-neu-hover);
 }
 
 .card-grid {

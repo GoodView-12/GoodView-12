@@ -19,7 +19,7 @@ type Props = {
 
 const { project } = Astro.props;
 const locale = localeFromParam(Astro.params.locale);
-const { Content } = await render(project);
+const { Content, headings } = await render(project);
 ---
 
 <ArticleView
@@ -33,6 +33,7 @@ const { Content } = await render(project);
 	tags={project.data.tags}
 	demo={project.data.demo}
 	repo={project.data.repo}
+	headings={headings}
 >
 	<Content />
 </ArticleView>

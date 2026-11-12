@@ -19,7 +19,7 @@ type Props = {
 
 const { post } = Astro.props;
 const locale = localeFromParam(Astro.params.locale);
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 ---
 
 <ArticleView
@@ -31,6 +31,7 @@ const { Content } = await render(post);
 	updatedDate={post.data.updatedDate}
 	cover={post.data.cover}
 	tags={post.data.tags}
+	headings={headings}
 >
 	<Content />
 </ArticleView>

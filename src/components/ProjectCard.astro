@@ -1,5 +1,5 @@
 ---
-import { getStatusLabel, t, type Locale } from '../i8n';
+import { getStatusLabel, resolveAsset, t, type Locale } from '../i8n';
 
 interface Props {
 	href: string;
@@ -32,7 +32,7 @@ const statusLabel = getStatusLabel(locale, tone);
 
 <article class="project-card" data-card data-tags={tags.join('|')}>
 	<a class="project-card__media" href={href} aria-label={title}>
-		<img src={cover} alt={title} loading="lazy" />
+		<img src={resolveAsset(cover)} alt={title} width="1200" height="675" loading="lazy" decoding="async" />
 		<span class:list={['project-card__status', `is-${tone}`]}>{statusLabel}</span>
 	</a>
 
@@ -50,12 +50,12 @@ const statusLabel = getStatusLabel(locale, tone);
 
 		<div class="project-card__links">
 			{demo && (
-				<a href={demo} target="_blank" rel="noopener noreferrer">
+				<a class="project-card__action" href={demo} target="_blank" rel="noopener noreferrer">
 					{copy.common.projectDemoShort} ↗
 				</a>
 			)}
 			{repo && (
-				<a href={repo} target="_blank" rel="noopener noreferrer">
+				<a class="project-card__action" href={repo} target="_blank" rel="noopener noreferrer">
 					{copy.common.projectRepoShort} ↗
 				</a>
 			)}
@@ -72,7 +72,7 @@ const statusLabel = getStatusLabel(locale, tone);
 		background: var(--card);
 		border: 1px solid var(--line);
 		border-radius: var(--radius);
-		box-shadow: var(--shadow-card);
+		box-shadow: var(--shadow-neu);
 		overflow: hidden;
 		transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
 			border-color 0.35s ease;
@@ -80,8 +80,8 @@ const statusLabel = getStatusLabel(locale, tone);
 
 	.project-card:hover {
 		transform: translateY(-6px);
-		border-color: rgba(34, 34, 42, 0.2);
-		box-shadow: var(--shadow-pop);
+		border-color: rgba(var(--shadow-rgb), 0.18);
+		box-shadow: var(--shadow-neu-hover);
 	}
 
 	.project-card__media {
@@ -112,29 +112,29 @@ const statusLabel = getStatusLabel(locale, tone);
 		font-size: 0.7rem;
 		font-weight: 700;
 		letter-spacing: 0.06em;
-		background: rgba(255, 255, 255, 0.92);
+		background: rgba(255, 253, 249, 0.92);
 		color: var(--ink);
 		backdrop-filter: blur(6px);
 	}
 
 	.project-card__status.is-doing {
-		color: #a05a00;
-		background: rgba(255, 207, 107, 0.92);
+		color: var(--accent-4-ink);
+		background: rgba(211, 160, 92, 0.88);
 	}
 
 	.project-card__status.is-done {
-		color: #0d6b58;
-		background: rgba(116, 214, 191, 0.9);
+		color: var(--accent-3-ink);
+		background: rgba(138, 160, 136, 0.9);
 	}
 
 	.project-card__status.is-idea {
-		color: #7a2c46;
-		background: rgba(255, 122, 156, 0.9);
+		color: #6d2f41;
+		background: rgba(196, 111, 134, 0.9);
 	}
 
 	.project-card__status.is-archived {
-		color: #f0f0f4;
-		background: rgba(97, 97, 109, 0.9);
+		color: var(--paper-soft);
+		background: rgba(96, 89, 96, 0.9);
 	}
 
 	.project-card__body {
@@ -204,6 +204,30 @@ const statusLabel = getStatusLabel(locale, tone);
 
 	.project-card__links a:hover {
 		color: var(--accent);
+	}
+
+	.project-card__action {
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		padding: 4px 10px;
+		border-radius: 999px;
+		background: var(--paper);
+		color: var(--ink-soft);
+		box-shadow:
+			-3px -3px 7px rgba(255, 253, 249, 0.9),
+			4px 4px 9px rgba(var(--shadow-rgb), 0.1),
+			inset 1px 1px 0 rgba(255, 253, 249, 0.9);
+		transition: color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+	}
+
+	.project-card__action:hover {
+		color: var(--accent-ink);
+		transform: translateY(-1px);
+		box-shadow:
+			-4px -4px 9px rgba(255, 253, 249, 0.95),
+			6px 7px 14px rgba(var(--shadow-rgb), 0.13),
+			inset 1px 1px 0 rgba(255, 253, 249, 0.95);
 	}
 
 	.project-card__more {

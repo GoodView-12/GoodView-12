@@ -1,5 +1,5 @@
----
-import { AVATAR_IMAGE, SOCIAL_LINKS } from '../consts';
+k---
+import { AVATAR_IMAGE, AVATAR_IMAGE_SMALL, SOCIAL_LINKS } from '../consts';
 import { LOCALE_NAME, LOCALES, localizePath, t, type Locale } from '../i8n';
 import Layout from '../layouts/Layout.astro';
 
@@ -12,7 +12,7 @@ const copy = t[locale];
 const languageLinks = LOCALES.map((code) => ({
 	code,
 	name: LOCALE_NAME[code],
-	href: localizePath('/about', code),
+	href: localizePath('/about/', code),
 	active: code === locale,
 }));
 ---
@@ -20,7 +20,17 @@ const languageLinks = LOCALES.map((code) => ({
 <Layout title={copy.meta.aboutTitle} description={copy.meta.aboutDescription} locale={locale}>
 	<section class="page container about">
 		<div class="about__card">
-			<img class="about__avatar" src={AVATAR_IMAGE} alt={copy.a11y.avatar} />
+			<img
+				class="about__avatar"
+				src={AVATAR_IMAGE}
+				srcset={`${AVATAR_IMAGE_SMALL} 256w, ${AVATAR_IMAGE} 512w`}
+				sizes="150px"
+				width="512"
+				height="512"
+				alt={copy.a11y.avatar}
+				loading="lazy"
+				decoding="async"
+			/>
 			<div>
 				<p class="eyebrow">{copy.about.eyebrow}</p>
 				<h1>{copy.about.title}</h1>
@@ -74,7 +84,7 @@ const languageLinks = LOCALES.map((code) => ({
 		align-items: center;
 		padding: 28px;
 		margin-bottom: 40px;
-		background: linear-gradient(150deg, #fff 0%, #fff 58%, var(--accent-soft) 160%);
+		background: linear-gradient(150deg, var(--card) 0%, var(--card) 58%, var(--accent-soft) 160%);
 		border: 1px solid var(--line);
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-card);
@@ -86,9 +96,9 @@ const languageLinks = LOCALES.map((code) => ({
 		width: 150px;
 		height: 150px;
 		object-fit: cover;
-		border: 4px solid #fff;
+		border: 4px solid var(--card);
 		border-radius: 36px;
-		box-shadow: 0 20px 40px -24px rgba(34, 34, 42, 0.7);
+		box-shadow: 0 20px 40px -24px rgba(var(--shadow-rgb), 0.65);
 	}
 
 	.about__card h1 {
@@ -131,7 +141,7 @@ const languageLinks = LOCALES.map((code) => ({
 		padding: 7px 16px;
 		border: 1px solid var(--line);
 		border-radius: 999px;
-		background: #fff;
+		background: var(--card);
 		font-size: 0.82rem;
 		text-decoration: none;
 		transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
@@ -168,7 +178,7 @@ const languageLinks = LOCALES.map((code) => ({
 	}
 
 	.about__lang.is-active {
-		color: #fff;
+		color: #fffdf9;
 		background: var(--ink);
 		border-color: var(--ink);
 	}

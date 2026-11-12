@@ -22,7 +22,7 @@ const year = new Date().getFullYear();
 			{NAV_ITEMS.map((item) => (
 				<a href={localizePath(item.path, locale)}>{copy.nav[item.key]}</a>
 			))}
-			<a href={localizePath('/about', locale)}>{copy.footer.about}</a>
+			<a href={localizePath('/about/', locale)}>{copy.footer.about}</a>
 		</nav>
 
 		<div class="footer__meta">
@@ -49,7 +49,7 @@ const year = new Date().getFullYear();
 	.site-footer {
 		padding: 42px 0 46px;
 		border-top: 1px solid var(--line);
-		background: rgba(251, 250, 247, 0.8);
+		background: rgba(252, 248, 241, 0.82);
 	}
 
 	.footer__inner {

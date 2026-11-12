@@ -3,6 +3,52 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'zh-CN';
 export const ALTERNATE_LOCALES: Locale[] = ['zh-TW', 'en'];
 
+/**
+ * 站点部署在 GitHub Pages 的子路径下（例如 /blog）。
+ * Astro 的 BASE_URL 总是以 / 结尾，这里统一去掉末尾斜杠方便拼接。
+ */
+const RAW_BASE = import.meta.env.BASE_URL || '/';
+export const BASE_PATH = RAW_BASE === '/' ? '' : RAW_BASE.replace(/\/+$/, '');
+
+const EXTERNAL_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i;
+
+/** 给站内绝对路径加上部署 base，外链、mailto、锚点原样返回。 */
+export function withBase(path: string): string {
+	if (!path) return path;
+	if (EXTERNAL_PATTERN.test(path)) return path;
+	const normalized = path.startsWith('/') ? path : `/${path}`;
+	return `${BASE_PATH}${normalized}`;
+}
+
+/** 去掉部署 base，得到站点内部路径。 */
+export function stripBase(pathname: string): string {
+	if (!BASE_PATH) return pathname || '/';
+	if (!pathname) return '/';
+	if (pathname === BASE_PATH) return '/';
+	if (pathname.startsWith(`${BASE_PATH}/`)) {
+		return pathname.slice(BASE_PATH.length) || '/';
+	}
+	return pathname;
+}
+
+/** 站内图片等静态资源统一加上 base。 */
+export function resolveAsset(src: string): string {
+	return ensureAssetBase(src);
+}
+
+/**
+ * 与 withBase 类似，但已经带 base 的资源路径不会重复添加。
+ * 只用于静态资源（图片、字体等），不要用于页面路由。
+ */
+export function ensureAssetBase(path: string): string {
+	if (!path) return path;
+	if (EXTERNAL_PATTERN.test(path)) return path;
+	const normalized = path.startsWith('/') ? path : `/${path}`;
+	if (!BASE_PATH) return normalized;
+	if (normalized === BASE_PATH || normalized.startsWith(`${BASE_PATH}/`)) return normalized;
+	return `${BASE_PATH}${normalized}`;
+}
+
 export const LOCALE_PREFIX: Record<Locale, string> = {
 	'zh-CN': '',
 	'zh-TW': '/zh-tw',
@@ -42,6 +88,7 @@ export const INTL_LOCALE: Record<Locale, string> = {
 const zhCN = {
 	meta: {
 		siteName: '吉辰良景',
+		brandName: '吉辰良景的博客',
 		siteLatin: 'GOODVIEW',
 		logoGlyph: '吉',
 		author: 'goodview',
@@ -120,20 +167,24 @@ const zhCN = {
 		blogTag: 'LATEST POST',
 		blogFallbackTitle: '还没有文章',
 		blogFallbackDesc: '去写下第一篇吧。',
-		nowTag: 'NOW',
-		nowItems: ['正在学习前端开发', '打算陆续开发一些小工具', '想尝试制作MC模组'],
+		timeTag: 'TIME',
+		lunarPrefix: '农历',
 		projectsTag: 'PROJECTS',
-		projectsTitle: (count: number) => `${count} 个做过 / 在做的东西`,
-		projectsDesc: '展示一些自己的作品。',
-		projectsLink: '逛一圈',
+		projectsPickTitle: '推荐项目',
+		projectsLink: '查看全部',
+		recommendTag: '推荐',
 		toolTag: 'TOOL',
 		toolTitle: ['角色雷达图', '制作工具'],
 		toolLink: '打开',
-		tagsTag: 'TAGS',
-		tagsHint: '文章越多，标签越热闹。',
-		noteTag: 'NOTE',
-		noteText: '“请输入文本。”',
-		noteSign: '— 写给自己的话',
+		updatesTag: 'UPDATES',
+		updatesTitle: '最近更新',
+		updatesEmpty: '还没有更新。',
+		statsTag: 'SITE',
+		statsPosts: '篇文章',
+		statsProjects: '个项目',
+		statsLink: '关于本站',
+		sinceLabel: '已建站',
+		sinceUnit: '天',
 	},
 	blog: {
 		eyebrow: 'BLOG',
@@ -163,6 +214,34 @@ const zhCN = {
 	article: {
 		eyebrowBlog: 'ARTICLE',
 		eyebrowProject: 'PROJECT',
+		tocTitle: '本页目录',
+		anchorLabel: '本节链接',
+	},
+	comments: {
+		title: '评论',
+		lead: '说点什么吧，友善交流。',
+		nameLabel: '昵称',
+		namePlaceholder: '你的昵称',
+		contentLabel: '评论内容',
+		contentPlaceholder: '写下你的想法…',
+		submit: '发表评论',
+		empty: '还没有评论，来抢沙发。',
+		count: '{count} 条评论',
+		localNotice: '当前为本地评论模式：评论只保存在这台设备的浏览器里，换设备或清理缓存后会消失。',
+		delete: '删除',
+		deleteConfirm: '确定删除这条评论吗？',
+		nameRequired: '请先填写昵称。',
+		contentRequired: '评论内容不能为空。',
+		tooLong: '内容太长了，最多 1000 个字符。',
+		justNow: '刚刚',
+		localBadge: '本地',
+	},
+	notFound: {
+		eyebrow: 'NOT FOUND',
+		title: '页面走丢了',
+		lead: '你访问的页面不存在，可能已经被移动、改名或删除。',
+		home: '回到首页',
+		blog: '去看看博客',
 	},
 };
 
@@ -173,6 +252,7 @@ export type SocialKey = keyof Dict['common']['social'];
 const zhTW: Dict = {
 	meta: {
 		siteName: '吉辰良景',
+		brandName: '吉辰良景的部落格',
 		siteLatin: 'GOODVIEW',
 		logoGlyph: '吉',
 		author: 'goodview',
@@ -251,20 +331,24 @@ const zhTW: Dict = {
 		blogTag: 'LATEST POST',
 		blogFallbackTitle: '還沒有文章',
 		blogFallbackDesc: '去寫下第一篇吧。',
-		nowTag: 'NOW',
-		nowItems: ['正在學習前端開發', '打算陸續開發一些小工具', '想嘗試製作 MC 模組'],
+		timeTag: 'TIME',
+		lunarPrefix: '農曆',
 		projectsTag: 'PROJECTS',
-		projectsTitle: (count: number) => `${count} 個做過 / 在做的東西`,
-		projectsDesc: '展示一些自己的作品。',
-		projectsLink: '逛一圈',
+		projectsPickTitle: '推薦專案',
+		projectsLink: '查看全部',
+		recommendTag: '推薦',
 		toolTag: 'TOOL',
 		toolTitle: ['角色雷達圖', '製作工具'],
 		toolLink: '打開',
-		tagsTag: 'TAGS',
-		tagsHint: '文章越多，標籤越熱鬧。',
-		noteTag: 'NOTE',
-		noteText: '「請輸入文字。」',
-		noteSign: '— 寫給自己的話',
+		updatesTag: 'UPDATES',
+		updatesTitle: '最近更新',
+		updatesEmpty: '還沒有更新。',
+		statsTag: 'SITE',
+		statsPosts: '篇文章',
+		statsProjects: '個專案',
+		statsLink: '關於本站',
+		sinceLabel: '已建站',
+		sinceUnit: '天',
 	},
 	blog: {
 		eyebrow: 'BLOG',
@@ -294,12 +378,41 @@ const zhTW: Dict = {
 	article: {
 		eyebrowBlog: 'ARTICLE',
 		eyebrowProject: 'PROJECT',
+		tocTitle: '本頁目錄',
+		anchorLabel: '本節連結',
+	},
+	comments: {
+		title: '留言',
+		lead: '說點什麼吧，友善交流。',
+		nameLabel: '暱稱',
+		namePlaceholder: '你的暱稱',
+		contentLabel: '留言內容',
+		contentPlaceholder: '寫下你的想法…',
+		submit: '發表留言',
+		empty: '還沒有留言，來搶沙發。',
+		count: '{count} 則留言',
+		localNotice: '目前為本地留言模式：留言只保存在這台裝置的瀏覽器裡，換裝置或清理快取後會消失。',
+		delete: '刪除',
+		deleteConfirm: '確定刪除這則留言嗎？',
+		nameRequired: '請先填寫暱稱。',
+		contentRequired: '留言內容不能為空。',
+		tooLong: '內容太長了，最多 1000 個字元。',
+		justNow: '剛剛',
+		localBadge: '本地',
+	},
+	notFound: {
+		eyebrow: 'NOT FOUND',
+		title: '頁面走丟了',
+		lead: '你造訪的頁面不存在，可能已經被移動、改名或刪除。',
+		home: '回到首頁',
+		blog: '去看看部落格',
 	},
 };
 
 const en: Dict = {
 	meta: {
 		siteName: 'Goodview',
+		brandName: "Goodview's Blog",
 		siteLatin: '吉辰良景',
 		logoGlyph: 'G',
 		author: 'goodview',
@@ -378,20 +491,24 @@ const en: Dict = {
 		blogTag: 'LATEST POST',
 		blogFallbackTitle: 'No posts yet',
 		blogFallbackDesc: 'Write the first one.',
-		nowTag: 'NOW',
-		nowItems: ['Learning frontend development', 'Planning to build some small tools', 'Wanting to try making MC mods'],
+		timeTag: 'TIME',
+		lunarPrefix: 'Lunar ',
 		projectsTag: 'PROJECTS',
-		projectsTitle: (count: number) => `${count} ${count === 1 ? 'thing' : 'things'} made / in progress`,
-		projectsDesc: 'Showing off some of my work.',
-		projectsLink: 'Take a look',
+		projectsPickTitle: 'Featured projects',
+		projectsLink: 'View all',
+		recommendTag: 'Featured',
 		toolTag: 'TOOL',
 		toolTitle: ['Character radar', 'chart maker'],
 		toolLink: 'Open',
-		tagsTag: 'TAGS',
-		tagsHint: 'More posts, more tags.',
-		noteTag: 'NOTE',
-		noteText: '"Please enter text."',
-		noteSign: '— a note to myself',
+		updatesTag: 'UPDATES',
+		updatesTitle: 'Recent updates',
+		updatesEmpty: 'No updates yet.',
+		statsTag: 'SITE',
+		statsPosts: 'posts',
+		statsProjects: 'projects',
+		statsLink: 'About this site',
+		sinceLabel: 'Building for',
+		sinceUnit: 'days',
 	},
 	blog: {
 		eyebrow: 'BLOG',
@@ -421,6 +538,35 @@ const en: Dict = {
 	article: {
 		eyebrowBlog: 'ARTICLE',
 		eyebrowProject: 'PROJECT',
+		tocTitle: 'On this page',
+		anchorLabel: 'Section link',
+	},
+	comments: {
+		title: 'Comments',
+		lead: 'Say something nice.',
+		nameLabel: 'Name',
+		namePlaceholder: 'Your name',
+		contentLabel: 'Comment',
+		contentPlaceholder: 'Share your thoughts…',
+		submit: 'Post comment',
+		empty: 'No comments yet. Be the first.',
+		count: '{count} comments',
+		localNotice:
+			'Local comment mode: comments are stored only in this browser and will disappear after you clear site data.',
+		delete: 'Delete',
+		deleteConfirm: 'Delete this comment?',
+		nameRequired: 'Please enter a name.',
+		contentRequired: 'Comment cannot be empty.',
+		tooLong: 'Too long. 1000 characters maximum.',
+		justNow: 'just now',
+		localBadge: 'local',
+	},
+	notFound: {
+		eyebrow: 'NOT FOUND',
+		title: 'This page wandered off',
+		lead: 'The page you are looking for does not exist. It may have been moved, renamed, or deleted.',
+		home: 'Back home',
+		blog: 'Read the blog',
 	},
 };
 
@@ -441,25 +587,40 @@ export function localeFromParam(param?: string): Locale {
 	return DEFAULT_LOCALE;
 }
 
-export function getLocaleFromPath(pathname: string): Locale {
+function localeOfSitePath(pathname: string): Locale {
 	if (pathname === '/en' || pathname.startsWith('/en/')) return 'en';
 	if (pathname === '/zh-tw' || pathname.startsWith('/zh-tw/')) return 'zh-TW';
 	return DEFAULT_LOCALE;
 }
 
+export function getLocaleFromPath(pathname: string): Locale {
+	return localeOfSitePath(stripBase(pathname));
+}
+
 export function stripLocale(pathname: string): string {
-	const locale = getLocaleFromPath(pathname);
+	const path = stripBase(pathname);
+	const locale = localeOfSitePath(path);
 	const prefix = LOCALE_PREFIX[locale];
-	if (!prefix) return pathname || '/';
-	const rest = pathname.slice(prefix.length);
+	if (!prefix) return path || '/';
+	const rest = path.slice(prefix.length);
 	return rest === '' ? '/' : rest;
 }
 
+/**
+ * localizePath 接收“站点内部路径”（例如 /blog/），不会把它误当成部署 base。
+ * 如果来源是 Astro.url.pathname，请先调用 stripBase()。
+ */
 export function localizePath(pathname: string, locale: Locale): string {
-	const clean = stripLocale(pathname) || '/';
-	const prefix = LOCALE_PREFIX[locale];
-	if (!prefix) return clean;
-	return clean === '/' ? `${prefix}/` : `${prefix}${clean}`;
+	const path = pathname || '/';
+	const sourceLocale = localeOfSitePath(path);
+	const sourcePrefix = LOCALE_PREFIX[sourceLocale];
+	const clean =
+		sourcePrefix && (path === sourcePrefix || path.startsWith(`${sourcePrefix}/`))
+			? path.slice(sourcePrefix.length) || '/'
+			: path;
+	const targetPrefix = LOCALE_PREFIX[locale];
+	const localized = clean === '/' ? (targetPrefix ? `${targetPrefix}/` : '/') : `${targetPrefix}${clean}`;
+	return withBase(localized);
 }
 
 export function normalizePath(pathname: string): string {
