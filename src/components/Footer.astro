@@ -1,5 +1,4 @@
 ---
-import { NAV_ITEMS, SOCIAL_LINKS } from '../consts';
 import { localizePath, t, type Locale } from '../i8n';
 
 interface Props {
@@ -8,141 +7,63 @@ interface Props {
 
 const { locale } = Astro.props;
 const copy = t[locale];
-const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
 	<div class="container footer__inner">
-		<div class="footer__brand">
-			<a class="footer__logo" href={localizePath('/', locale)}>✦ {copy.meta.siteName}</a>
-			<p>{copy.footer.tagline}</p>
-		</div>
-
-		<nav class="footer__nav" aria-label={copy.a11y.footerNav}>
-			{NAV_ITEMS.map((item) => (
-				<a href={localizePath(item.path, locale)}>{copy.nav[item.key]}</a>
-			))}
-			<a href={localizePath('/about/', locale)}>{copy.footer.about}</a>
-		</nav>
-
-		<div class="footer__meta">
-			<p>© {year} {copy.meta.siteName} · {copy.footer.rights}</p>
-			<div class="footer__bottom">
-				<p class="footer__social">
-					{SOCIAL_LINKS.map((link) => (
-						<a
-							href={link.href}
-							target={link.external ? '_blank' : undefined}
-							rel="noopener noreferrer"
-						>
-							{copy.common.social[link.key]}
-						</a>
-					))}
-				</p>
-				<a class="footer__top" href="#main">↑ {copy.a11y.backToTop}</a>
-			</div>
-		</div>
+		<a class="footer__logo" href={localizePath('/', locale)}>{copy.meta.siteName}</a>
+		<a class="footer__top" href="#main">↑ {copy.a11y.backToTop}</a>
 	</div>
 </footer>
 
 <style>
 	.site-footer {
-		padding: 42px 0 46px;
+		padding: 26px 0 30px;
 		border-top: 1px solid var(--line);
-		background: rgba(252, 248, 241, 0.82);
+		background: var(--paper-soft);
 	}
 
 	.footer__inner {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-start;
+		align-items: center;
 		justify-content: space-between;
-		gap: 28px;
+		gap: 16px;
 	}
 
 	.footer__logo {
-		display: inline-block;
-		margin-bottom: 4px;
+		color: var(--ink);
 		font-family: var(--font-display);
+		font-size: 0.9rem;
 		font-weight: 700;
 		letter-spacing: 0.05em;
 		text-decoration: none;
-		transition: color 0.25s ease;
+		transition: color 0.2s ease;
 	}
 
 	.footer__logo:hover {
 		color: var(--accent);
 	}
 
-	.footer__brand p,
-	.footer__meta p {
-		margin: 0;
-		font-size: 0.8rem;
-		color: var(--ink-faint);
-	}
-
-	.footer__nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px 18px;
-		font-size: 0.84rem;
-	}
-
-	.footer__nav a {
-		color: var(--ink-soft);
-		text-decoration: none;
-		transition: color 0.25s ease;
-	}
-
-	.footer__nav a:hover {
-		color: var(--accent);
-	}
-
-	.footer__meta {
-		text-align: right;
-	}
-
-	.footer__bottom {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: flex-end;
-		gap: 12px;
-		margin-top: 7px;
-	}
-
-	.footer__social {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-end;
-		gap: 12px;
-	}
-
-	.footer__social a,
 	.footer__top {
 		color: var(--ink-soft);
-		font-size: 0.76rem;
+		font-size: 0.78rem;
 		text-decoration: none;
-		transition: color 0.25s ease;
+		transition: color 0.2s ease;
 	}
 
-	.footer__social a:hover,
 	.footer__top:hover {
 		color: var(--accent);
 	}
 
-	@media (max-width: 680px) {
+	@media (max-width: 520px) {
+		.site-footer {
+			padding: 22px 0 26px;
+		}
+
 		.footer__inner {
 			flex-direction: column;
-		}
-
-		.footer__meta {
-			text-align: left;
-		}
-
-		.footer__bottom,
-		.footer__social {
-			justify-content: flex-start;
+			align-items: flex-start;
+			gap: 10px;
 		}
 	}
 </style>

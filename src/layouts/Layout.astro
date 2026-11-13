@@ -9,9 +9,11 @@ interface Props {
 	title: string;
 	description: string;
 	noindex?: boolean;
+	/** 头图铺满页面顶部、导航悬浮在内容之上的页面（如首页）设为 true */
+	headerOverlay?: boolean;
 }
 
-const { locale, title, description, noindex = false } = Astro.props;
+const { locale, title, description, noindex = false, headerOverlay = false } = Astro.props;
 const copy = t[locale];
 ---
 
@@ -22,7 +24,7 @@ const copy = t[locale];
 	</head>
 	<body>
 		<a class="skip-link" href="#main">{copy.a11y.skip}</a>
-		<Header locale={locale} />
+		<Header locale={locale} overlay={headerOverlay} />
 		<main id="main">
 			<slot />
 		</main>

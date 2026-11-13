@@ -112,25 +112,24 @@ const { tags, total, allLabel, filterLabel, countTemplate } = Astro.props;
 	}
 
 	.tag-chip {
-		padding: 7px 15px;
+		padding: 6px 14px;
 		border: 1px solid var(--line);
 		border-radius: 999px;
-		background: rgba(255, 253, 249, 0.72);
+		background: var(--card);
 		color: var(--ink-soft);
 		font-size: 0.82rem;
 		line-height: 1.4;
-		transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease,
-			transform 0.25s ease;
+		transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 	}
 
 	.tag-chip:hover {
-		color: var(--ink);
+		color: var(--accent-ink);
 		border-color: var(--accent);
-		transform: translateY(-2px);
+		background: var(--accent-soft);
 	}
 
 	.tag-chip.is-active {
-		color: #fffdf9;
+		color: var(--on-ink);
 		background: var(--ink);
 		border-color: var(--ink);
 	}

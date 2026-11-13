@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
+import SocialIcon from '../components/SocialIcon.astro';
 import WaveDivider from '../components/WaveDivider.astro';
 import {
 	AVATAR_IMAGE,
@@ -58,7 +59,12 @@ const daysSinceLaunch = Math.max(
 );
 ---
 
-<Layout title={copy.meta.homeTitle} description={copy.meta.homeDescription} locale={locale}>
+<Layout
+	title={copy.meta.homeTitle}
+	description={copy.meta.homeDescription}
+	locale={locale}
+	headerOverlay
+>
 	<section class="hero">
 		<div class="hero__media">
 			<img
@@ -134,8 +140,8 @@ const daysSinceLaunch = Math.max(
 								target={link.external ? '_blank' : undefined}
 								rel="noopener noreferrer"
 							>
-								<span>{copy.common.social[link.key]}</span>
-								<span class="social-list__arrow" aria-hidden="true">↗</span>
+								<SocialIcon name={link.key} />
+								<span class="social-list__label">{copy.common.social[link.key]}</span>
 							</a>
 						</li>
 					))}
@@ -144,7 +150,6 @@ const daysSinceLaunch = Math.max(
 
 			<a class="card card--blog" href={blogHref}>
 				<span class="card-tag">{copy.home.blogTag}</span>
-				<span class="card-spark card-spark--rose" aria-hidden="true">✦</span>
 				<div class="card__grow">
 					<h3>{latest ? latest.data.title : copy.home.blogFallbackTitle}</h3>
 					<p>{latest ? latest.data.description : copy.home.blogFallbackDesc}</p>
@@ -159,7 +164,6 @@ const daysSinceLaunch = Math.max(
 				data-lunar-prefix={copy.home.lunarPrefix}
 			>
 				<span class="card-tag">{copy.home.timeTag}</span>
-				<span class="card-spark card-spark--amber" aria-hidden="true">✦</span>
 				<div class="time-card__clock">
 					<span data-clock>--:--</span>
 					<small data-period>--</small>
@@ -179,7 +183,6 @@ const daysSinceLaunch = Math.max(
 
 			<article class="card card--projects">
 				<span class="card-tag">{copy.home.projectsTag}</span>
-				<span class="card-spark card-spark--blue" aria-hidden="true">✦</span>
 				<div class="card__grow">
 					<h3>{copy.home.projectsPickTitle}</h3>
 					{projects.length > 0 ? (
@@ -210,7 +213,6 @@ const daysSinceLaunch = Math.max(
 
 			<a class="card card--tool" href={TOOL_LINK.href} target="_blank" rel="noopener noreferrer">
 				<span class="card-tag">{copy.home.toolTag}</span>
-				<span class="card-spark card-spark--amber" aria-hidden="true">✧</span>
 				<span class="tool__glyph" aria-hidden="true">✦</span>
 				<h3>
 					{copy.home.toolTitle.map((line, index) => (
@@ -225,7 +227,6 @@ const daysSinceLaunch = Math.max(
 
 			<article class="card card--updates">
 				<span class="card-tag">{copy.home.updatesTag}</span>
-				<span class="card-spark card-spark--rose" aria-hidden="true">✧</span>
 				<div class="card__grow">
 					<h3>{copy.home.updatesTitle}</h3>
 					{updates.length > 0 ? (
@@ -252,7 +253,6 @@ const daysSinceLaunch = Math.max(
 
 			<article class="card card--stats">
 				<span class="card-tag">{copy.home.statsTag}</span>
-				<span class="card-spark card-spark--amber" aria-hidden="true">✦</span>
 				<div class="stats-grid">
 					<div class="stat">
 						<strong>{posts.length}</strong>
@@ -276,10 +276,10 @@ const daysSinceLaunch = Math.max(
 		display: flex;
 		align-items: center;
 		min-height: min(88vh, 820px);
-		padding: 90px 0 160px;
+		padding: 150px 0 160px;
 		overflow: hidden;
-		background: #201a1c;
-		color: #fffdf9;
+		background: #0b1220;
+		color: #f8fafc;
 	}
 
 	.hero__media,
@@ -297,8 +297,8 @@ const daysSinceLaunch = Math.max(
 
 	.hero__veil {
 		background:
-			linear-gradient(180deg, rgba(26, 20, 22, 0.66) 0%, rgba(26, 20, 22, 0.28) 46%, rgba(26, 20, 22, 0.7) 100%),
-			linear-gradient(90deg, rgba(26, 20, 22, 0.6) 0%, rgba(26, 20, 22, 0) 72%);
+			linear-gradient(180deg, rgba(8, 13, 24, 0.66) 0%, rgba(8, 13, 24, 0.3) 46%, rgba(8, 13, 24, 0.72) 100%),
+			linear-gradient(90deg, rgba(8, 13, 24, 0.62) 0%, rgba(8, 13, 24, 0) 72%);
 	}
 
 	.hero__content {
@@ -312,7 +312,7 @@ const daysSinceLaunch = Math.max(
 		font-weight: 600;
 		letter-spacing: 0.34em;
 		text-transform: uppercase;
-		color: rgba(255, 253, 249, 0.72);
+		color: rgba(248, 250, 252, 0.72);
 	}
 
 	.hero__title {
@@ -321,14 +321,13 @@ const daysSinceLaunch = Math.max(
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		line-height: 1;
-		text-shadow: 0 18px 46px rgba(26, 20, 22, 0.45);
 	}
 
 	.hero__sub {
 		max-width: 460px;
 		margin: 0 0 30px;
 		font-size: clamp(0.95rem, 1.6vw, 1.08rem);
-		color: rgba(255, 253, 249, 0.82);
+		color: rgba(248, 250, 252, 0.82);
 	}
 
 	.hero__actions {
@@ -338,24 +337,26 @@ const daysSinceLaunch = Math.max(
 	}
 
 	.hero :global(.btn--primary) {
-		background: var(--card);
-		color: var(--ink);
+		background: #ffffff;
+		border-color: #ffffff;
+		color: #16223a;
 	}
 
 	.hero :global(.btn--primary:hover) {
-		background: var(--accent-soft);
+		background: #e8f0fe;
+		border-color: #e8f0fe;
+		color: #1d4ed8;
 	}
 
 	.hero :global(.btn--ghost) {
-		background: rgba(255, 253, 249, 0.12);
-		border-color: rgba(255, 253, 249, 0.4);
-		color: #fffdf9;
-		backdrop-filter: blur(6px);
+		background: rgba(255, 255, 255, 0.08);
+		border-color: rgba(255, 255, 255, 0.44);
+		color: #f8fafc;
 	}
 
 	.hero :global(.btn--ghost:hover) {
-		background: rgba(255, 253, 249, 0.24);
-		border-color: #fffdf9;
+		background: rgba(255, 255, 255, 0.18);
+		border-color: #ffffff;
 	}
 
 	.hero__scroll {
@@ -366,9 +367,8 @@ const daysSinceLaunch = Math.max(
 		margin: 0;
 		font-size: 0.62rem;
 		letter-spacing: 0.42em;
-		color: rgba(255, 253, 249, 0.6);
+		color: rgba(248, 250, 252, 0.6);
 		writing-mode: vertical-rl;
-		animation: floatY 2.8s ease-in-out infinite;
 	}
 
 	.hero__spark {
@@ -423,25 +423,7 @@ const daysSinceLaunch = Math.max(
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		isolation: isolate;
 		animation: bentoIn 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-	}
-
-	.bento > .card::before {
-		content: '';
-		position: absolute;
-		right: -46px;
-		bottom: -56px;
-		z-index: -1;
-		width: 160px;
-		height: 160px;
-		border-radius: 50%;
-		background: radial-gradient(
-			circle,
-			var(--card-glow, rgba(196, 111, 134, 0.14)),
-			transparent 70%
-		);
-		pointer-events: none;
 	}
 
 	.bento > .card:nth-child(2) {
@@ -475,27 +457,21 @@ const daysSinceLaunch = Math.max(
 	.card--profile {
 		grid-column: 1 / span 2;
 		grid-row: 1 / span 4;
-		--card-glow: rgba(196, 111, 134, 0.16);
-		transform: rotate(-1.1deg);
 	}
 
 	.card--blog {
 		grid-column: 3 / span 2;
 		grid-row: 1 / span 2;
-		--card-glow: rgba(196, 111, 134, 0.13);
 	}
 
 	.card--time {
 		grid-column: 5 / span 2;
 		grid-row: 1 / span 2;
-		--card-glow: rgba(211, 160, 92, 0.18);
-		transform: rotate(0.8deg) translateY(6px);
 	}
 
 	.card--projects {
 		grid-column: 3 / span 3;
 		grid-row: 3 / span 2;
-		--card-glow: rgba(114, 135, 163, 0.16);
 		gap: 5px;
 		padding: 18px 20px;
 	}
@@ -503,25 +479,16 @@ const daysSinceLaunch = Math.max(
 	.card--tool {
 		grid-column: 6;
 		grid-row: 3 / span 2;
-		--card-glow: rgba(211, 160, 92, 0.2);
-		transform: rotate(-1.4deg);
 	}
 
 	.card--updates {
 		grid-column: 1 / span 3;
 		grid-row: 5 / span 2;
-		--card-glow: rgba(114, 135, 163, 0.13);
 	}
 
 	.card--stats {
 		grid-column: 4 / span 3;
 		grid-row: 5 / span 2;
-		--card-glow: rgba(211, 160, 92, 0.14);
-		transform: rotate(-0.5deg);
-	}
-
-	.bento .card:hover {
-		transform: translateY(-6px) rotate(0deg);
 	}
 
 	.card-tag {
@@ -571,7 +538,6 @@ const daysSinceLaunch = Math.max(
 
 	.card--profile {
 		gap: 14px;
-		background: linear-gradient(160deg, var(--card) 0%, var(--card) 52%, var(--accent-soft) 145%);
 	}
 
 	.profile__top {
@@ -590,10 +556,8 @@ const daysSinceLaunch = Math.max(
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		border: 3px solid var(--card);
-		border-radius: 28px;
-		box-shadow: 0 16px 30px -18px rgba(var(--shadow-rgb), 0.65);
-		animation: floatY 5s ease-in-out infinite;
+		border: 1px solid var(--line);
+		border-radius: var(--radius-lg);
 	}
 
 	.profile__status {
@@ -639,33 +603,30 @@ const daysSinceLaunch = Math.max(
 	.social-list a {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		gap: 9px;
 		padding: 7px 12px;
 		border: 1px solid var(--line);
-		border-radius: 10px;
-		background: rgba(255, 253, 249, 0.72);
+		border-radius: var(--radius-sm);
+		background: var(--card);
 		color: var(--ink-soft);
 		font-size: 0.8rem;
 		text-decoration: none;
-		transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease,
-			transform 0.25s ease;
+		transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 	}
 
 	.social-list a:hover {
 		border-color: var(--accent);
 		background: var(--accent-soft);
-		color: var(--ink);
-		transform: translateX(3px);
+		color: var(--accent-ink);
 	}
 
-	.social-list__arrow {
-		opacity: 0.4;
-		transition: opacity 0.25s ease, transform 0.25s ease;
+	.social-list :global(.social-icon) {
+		color: var(--accent);
+		transition: color 0.2s ease;
 	}
 
-	.social-list a:hover .social-list__arrow {
-		opacity: 1;
-		transform: translate(2px, -2px);
+	.social-list a:hover :global(.social-icon) {
+		color: var(--accent-ink);
 	}
 
 	@keyframes bentoIn {
@@ -677,33 +638,6 @@ const daysSinceLaunch = Math.max(
 			opacity: 1;
 			translate: 0 0;
 		}
-	}
-
-	.card-spark {
-		position: absolute;
-		top: 12px;
-		right: 14px;
-		z-index: 2;
-		color: var(--accent);
-		font-size: 0.7rem;
-		line-height: 1;
-		opacity: 0.55;
-		pointer-events: none;
-		animation: twinkle 4s ease-in-out infinite;
-	}
-
-	.card-spark--amber {
-		color: var(--accent-4);
-		animation-delay: 0.6s;
-	}
-
-	.card-spark--blue {
-		color: var(--accent-2);
-		animation-delay: 1.2s;
-	}
-
-	.card-spark--rose {
-		color: var(--accent);
 	}
 
 	.card--time {
@@ -796,20 +730,18 @@ const daysSinceLaunch = Math.max(
 		gap: 8px;
 		padding: 5px 8px;
 		border: 1px solid transparent;
-		border-radius: 9px;
-		background: rgba(255, 253, 249, 0.62);
+		border-radius: var(--radius-sm);
+		background: transparent;
 		color: var(--ink-soft);
 		font-size: 0.78rem;
 		text-decoration: none;
-		transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease,
-			transform 0.2s ease;
+		transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 	}
 
 	.project-pick:hover {
 		border-color: var(--accent-2);
 		background: var(--accent-2-soft);
 		color: var(--ink);
-		transform: translateX(2px);
 	}
 
 	.project-pick__badge {
@@ -844,7 +776,7 @@ const daysSinceLaunch = Math.max(
 	}
 
 	.card--tool {
-		background: linear-gradient(165deg, var(--card) 0%, var(--card) 55%, var(--accent-4-soft) 155%);
+		background: var(--card);
 	}
 
 	.tool__glyph {
@@ -887,7 +819,7 @@ const daysSinceLaunch = Math.max(
 	}
 
 	.update-item:hover {
-		background: rgba(255, 253, 249, 0.75);
+		background: var(--surface-muted);
 		color: var(--ink);
 	}
 
@@ -943,11 +875,8 @@ const daysSinceLaunch = Math.max(
 		flex-direction: column;
 		gap: 2px;
 		padding: 8px 10px;
-		border-radius: 12px;
-		background: rgba(255, 253, 249, 0.62);
-		box-shadow:
-			inset 1px 1px 0 rgba(255, 253, 249, 0.9),
-			inset -1px -1px 0 rgba(var(--shadow-rgb), 0.04);
+		border-radius: var(--radius-sm);
+		background: var(--surface-muted);
 	}
 
 	.stat strong {
@@ -968,7 +897,7 @@ const daysSinceLaunch = Math.max(
 		bottom: 18px;
 		width: 52px;
 		height: 52px;
-		border: 1px dashed rgba(211, 160, 92, 0.45);
+		border: 1px dashed var(--line-strong);
 		border-radius: 50%;
 		pointer-events: none;
 	}
@@ -1005,7 +934,7 @@ const daysSinceLaunch = Math.max(
 	@media (max-width: 720px) {
 		.hero {
 			min-height: 78vh;
-			padding: 64px 0 140px;
+			padding: 120px 0 140px;
 		}
 
 		.hero__scroll {
@@ -1037,6 +966,13 @@ const daysSinceLaunch = Math.max(
 
 		.home {
 			padding: 40px 0 76px;
+		}
+	}
+
+	@media (max-width: 560px) {
+		.hero {
+			/* 导航在窄屏会折成两行，额外留出高度 */
+			padding-top: 152px;
 		}
 	}
 </style>

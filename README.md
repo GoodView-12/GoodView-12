@@ -10,6 +10,15 @@
 
 - 查看博客文章
 - 查找项目
+- 浅色 / 深色主题切换（默认跟随系统，选择会记住）
+
+## 设计规范
+
+配色、排版、组件与深色模式实现记录在 [design.md](./design.md)：
+
+- 全站扁平化，无新拟物 / 立体阴影
+- 颜色统一走 `src/styles/global.css` 的语义变量，深浅两套
+- 主题切换逻辑位于 `src/scripts/theme.ts`，首屏防闪烁脚本内联在 `BaseHead.astro`
 
 ## 目录结构
 
@@ -30,10 +39,12 @@ goodview-blog/
 │   ├── layouts/Layout.astro
 │   ├── pages/             # 默认语言页面 + [locale] 多语言页面
 │   ├── views/             # 各页面共享视图
-│   ├── styles/global.css
+│   ├── scripts/theme.ts   # 主题读取、切换与系统监听
+│   ├── styles/global.css  # 设计令牌（浅色 / 深色）与全局样式
 │   ├── consts.ts          # 图片、导航、社交链接、Giscus 配置
 │   └── i8n.ts             # 三语言文案与 base-aware 路由工具
 ├── astro.config.mjs
+├── design.md              # 设计规范
 └── package.json
 ```
 

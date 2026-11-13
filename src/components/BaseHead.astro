@@ -45,7 +45,8 @@ const xDefault = new URL(
 <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 <meta name="generator" content={Astro.generator} />
 <meta name="author" content={copy.meta.author} />
-<meta name="theme-color" content="#f6f1e9" />
+<meta name="theme-color" content="#f5f8fc" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0e131a" media="(prefers-color-scheme: dark)" />
 
 <Font cssVariable="--font-atkinson" preload />
 
@@ -77,3 +78,23 @@ const xDefault = new URL(
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+
+{/* 同步执行，避免深色模式下首屏闪白 */}
+<script is:inline>
+	(() => {
+		try {
+			const stored = window.localStorage.getItem('goodview-blog:theme');
+			const theme =
+				stored === 'light' || stored === 'dark'
+					? stored
+					: window.matchMedia('(prefers-color-scheme: dark)').matches
+						? 'dark'
+						: 'light';
+			const root = document.documentElement;
+			root.dataset.theme = theme;
+			root.style.colorScheme = theme;
+		} catch {
+			/* localStorage 不可用时保持默认浅色主题 */
+		}
+	})();
+</script>

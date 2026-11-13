@@ -125,6 +125,9 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 		const host = root.querySelector('[data-giscus-host]');
 		if (!(host instanceof HTMLElement)) return;
 
+		const giscusTheme = () =>
+			document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+
 		const script = document.createElement('script');
 		script.src = 'https://giscus.app/client.js';
 		script.async = true;
@@ -142,7 +145,7 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 			'data-input-position': root.dataset.giscusInputPosition || 'top',
 			'data-lang': root.dataset.giscusLang || 'zh-CN',
 			'data-loading': 'lazy',
-			'data-theme': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+			'data-theme': giscusTheme(),
 		};
 
 		Object.entries(attrs).forEach(([key, value]) => {
@@ -150,6 +153,21 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 		});
 
 		host.appendChild(script);
+
+		// 站内切换主题时同步 Giscus iframe，避免评论框停留在旧配色。
+		const syncTheme = () => {
+			const frame = host.querySelector('iframe');
+			if (!(frame instanceof HTMLIFrameElement) || !frame.contentWindow) return;
+			frame.contentWindow.postMessage(
+				{ giscus: { setConfig: { theme: giscusTheme() } } },
+				'https://giscus.app',
+			);
+		};
+
+		new MutationObserver(syncTheme).observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme'],
+		});
 	};
 
 	const setupLocal = (root: HTMLElement) => {
@@ -331,11 +349,9 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 	.comments {
 		margin-top: 58px;
 		padding: 26px;
+		border: 1px solid var(--line);
 		border-radius: var(--radius-lg);
-		background: var(--paper);
-		box-shadow:
-			-6px -6px 14px rgba(255, 253, 249, 0.95),
-			10px 12px 26px rgba(var(--shadow-rgb), 0.12);
+		background: var(--card);
 	}
 
 	.comments__head {
@@ -402,18 +418,14 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 	.comment-form textarea {
 		width: 100%;
 		padding: 11px 14px;
-		border: 0;
-		border-radius: 12px;
-		background: var(--paper);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-sm);
+		background: var(--card);
 		color: var(--ink);
 		font: inherit;
 		font-size: 0.9rem;
 		line-height: 1.7;
-		outline: none;
-		box-shadow:
-			inset 3px 3px 8px rgba(var(--shadow-rgb), 0.1),
-			inset -3px -3px 8px rgba(255, 253, 249, 0.95);
-		transition: box-shadow 0.25s ease;
+		transition: border-color 0.2s ease, background 0.2s ease;
 	}
 
 	.comment-form textarea {
@@ -421,12 +433,16 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 		resize: vertical;
 	}
 
+	.comment-form input::placeholder,
+	.comment-form textarea::placeholder {
+		color: var(--ink-faint);
+	}
+
 	.comment-form input:focus,
 	.comment-form textarea:focus {
-		box-shadow:
-			inset 3px 3px 8px rgba(var(--shadow-rgb), 0.1),
-			inset -3px -3px 8px rgba(255, 253, 249, 0.95),
-			0 0 0 2px var(--accent-soft);
+		border-color: var(--accent);
+		outline: 2px solid var(--focus-ring);
+		outline-offset: 1px;
 	}
 
 	.comment-form__foot {
@@ -468,11 +484,9 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 
 	.comment-item {
 		padding: 16px 18px;
-		border-radius: 16px;
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
 		background: var(--paper-soft);
-		box-shadow:
-			inset 1px 1px 0 rgba(255, 253, 249, 0.9),
-			3px 4px 10px rgba(var(--shadow-rgb), 0.06);
 	}
 
 	.comment-item__head {
@@ -487,8 +501,8 @@ const giscusLang = locale === 'en' ? 'en' : locale === 'zh-TW' ? 'zh-TW' : 'zh-C
 		place-items: center;
 		width: 34px;
 		height: 34px;
-		border-radius: 12px;
-		background: linear-gradient(135deg, var(--accent-soft), var(--accent-2-soft));
+		border-radius: var(--radius-sm);
+		background: var(--accent-soft);
 		color: var(--accent-ink);
 		font-size: 0.9rem;
 		font-weight: 700;

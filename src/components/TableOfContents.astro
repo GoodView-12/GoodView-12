@@ -106,11 +106,9 @@ const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <
 <style>
 	.toc {
 		padding: 16px 18px;
-		border-radius: 18px;
-		background: var(--paper);
-		box-shadow:
-			-5px -5px 12px rgba(255, 253, 249, 0.95),
-			7px 9px 20px rgba(var(--shadow-rgb), 0.12);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		background: var(--card);
 	}
 
 	.toc__summary {
@@ -135,7 +133,8 @@ const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <
 		height: 7px;
 		border-radius: 50%;
 		background: var(--accent);
-		box-shadow: 0 0 0 4px var(--accent-soft);
+		outline: 3px solid var(--accent-soft);
+		outline-offset: 2px;
 	}
 
 	.toc__nav {
@@ -172,7 +171,7 @@ const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <
 
 	.toc__item a:hover {
 		color: var(--ink);
-		background: rgba(255, 253, 249, 0.68);
+		background: var(--surface-muted);
 	}
 
 	.toc__item a.is-active {
@@ -186,8 +185,7 @@ const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <
 		.toc {
 			padding: 12px 16px;
 			border: 1px dashed var(--line);
-			background: rgba(255, 253, 249, 0.6);
-			box-shadow: none;
+			background: var(--paper-soft);
 		}
 
 		.toc__nav {

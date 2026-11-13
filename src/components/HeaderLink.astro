@@ -26,34 +26,25 @@ const isActive = target === current || target === currentRoot;
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
-		padding: 8px 16px;
-		border-radius: 14px;
+		padding: 7px 14px;
+		border-radius: var(--radius-sm);
 		color: var(--ink-soft);
 		font-size: 0.86rem;
 		font-weight: 600;
 		text-decoration: none;
 		white-space: nowrap;
-		transition: color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease,
-			transform 0.25s ease;
+		transition: color 0.2s ease, background 0.2s ease;
 	}
 
 	.nav-link:hover {
 		color: var(--ink);
-		box-shadow:
-			-3px -3px 7px rgba(255, 253, 249, 0.9),
-			4px 4px 10px rgba(var(--shadow-rgb), 0.1);
-		transform: translateY(-1px);
+		background: var(--surface-muted);
 	}
 
 	.nav-link.is-active {
 		color: var(--accent-ink);
-		box-shadow:
-			inset 3px 3px 7px rgba(var(--shadow-rgb), 0.12),
-			inset -3px -3px 7px rgba(255, 253, 249, 0.95);
-	}
-
-	.nav-link.is-active:hover {
-		transform: none;
+		background: var(--accent-soft);
+		font-weight: 700;
 	}
 
 	@media (max-width: 640px) {

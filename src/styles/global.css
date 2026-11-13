@@ -1,43 +1,79 @@
+/*
+ * 设计令牌（Design Tokens）
+ * 浅色为默认主题，深色由 html[data-theme='dark'] 覆盖。
+ * 具体规范见根目录 design.md。
+ */
 :root {
-	--paper: #f6f1e9;
-	--paper-soft: #fcf8f1;
-	--card: #fffdf9;
-	--ink: #2c272b;
-	--ink-soft: #605960;
-	--ink-faint: #948a8f;
-	--line: #e7ded2;
-	--accent: #c46f86;
-	--accent-ink: #a64e66;
-	--accent-soft: #f6e3e7;
-	--accent-2: #7287a3;
-	--accent-2-ink: #4e6178;
-	--accent-2-soft: #e8ecf2;
-	--accent-3: #8aa088;
-	--accent-3-ink: #4f6650;
-	--accent-3-soft: #e9f0e7;
-	--accent-4: #d3a05c;
-	--accent-4-ink: #7a5620;
-	--accent-4-soft: #f7ecd9;
-	--shadow-rgb: 59, 44, 38;
-	--radius-lg: 28px;
-	--radius: 20px;
-	--radius-sm: 12px;
-	--shadow-card: 0 18px 40px -26px rgba(var(--shadow-rgb), 0.35);
-	--shadow-pop: 0 30px 60px -30px rgba(var(--shadow-rgb), 0.48);
-	--shadow-neu:
-		-6px -6px 16px rgba(255, 253, 249, 0.95),
-		10px 12px 26px rgba(var(--shadow-rgb), 0.13),
-		inset 1px 1px 0 rgba(255, 253, 249, 0.95),
-		inset -1px -1px 0 rgba(var(--shadow-rgb), 0.05);
-	--shadow-neu-hover:
-		-8px -8px 20px rgba(255, 253, 249, 1),
-		16px 20px 38px rgba(var(--shadow-rgb), 0.18),
-		inset 1px 1px 0 rgba(255, 253, 249, 1),
-		inset -1px -1px 0 rgba(var(--shadow-rgb), 0.06);
+	color-scheme: light;
+	--paper: #f5f8fc;
+	--paper-soft: #fbfcfe;
+	--card: #ffffff;
+	--surface-muted: #edf2f8;
+	--header-surface: rgba(255, 255, 255, 0.88);
+	--ink: #101828;
+	--ink-soft: #475467;
+	--ink-faint: #667085;
+	--line: #e3e9f2;
+	--line-strong: #cbd5e1;
+	--accent: #2f6feb;
+	--accent-ink: #1d4ed8;
+	--accent-soft: #e8f0fe;
+	--accent-2: #0f9b8e;
+	--accent-2-ink: #0b7a70;
+	--accent-2-soft: #e6f6f4;
+	--accent-3: #2e9e5b;
+	--accent-3-ink: #1c7a44;
+	--accent-3-soft: #e7f6ed;
+	--accent-4: #c97a16;
+	--accent-4-ink: #8f570f;
+	--accent-4-soft: #fdf1e3;
+	--on-accent: #ffffff;
+	--on-ink: #ffffff;
+	--code-surface: #1b2430;
+	--code-ink: #e8eef7;
+	--focus-ring: rgba(47, 111, 235, 0.4);
+	--tint-1: rgba(47, 111, 235, 0.06);
+	--tint-2: rgba(15, 155, 142, 0.05);
+	--radius-lg: 20px;
+	--radius: 14px;
+	--radius-sm: 10px;
 	--font-body: var(--font-atkinson), 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
 	--font-display: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', var(--font-atkinson), system-ui, sans-serif;
 	--container: 1180px;
 	--nav-h: 72px;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--paper: #0e131a;
+	--paper-soft: #131a23;
+	--card: #161d27;
+	--surface-muted: #1b2430;
+	--header-surface: rgba(14, 19, 26, 0.88);
+	--ink: #e8eef7;
+	--ink-soft: #a8b5c6;
+	--ink-faint: #7e8da1;
+	--line: #253041;
+	--line-strong: #33415a;
+	--accent: #6ea2ff;
+	--accent-ink: #a8c6ff;
+	--accent-soft: #1a2a44;
+	--accent-2: #4bc8bb;
+	--accent-2-ink: #95ded7;
+	--accent-2-soft: #12302e;
+	--accent-3: #58c07f;
+	--accent-3-ink: #9ee0b4;
+	--accent-3-soft: #132e1f;
+	--accent-4: #e0a458;
+	--accent-4-ink: #f0cd97;
+	--accent-4-soft: #2f2416;
+	--on-accent: #0a1220;
+	--on-ink: #0b1220;
+	--code-surface: #0b1119;
+	--code-ink: #dbe5f2;
+	--focus-ring: rgba(110, 162, 255, 0.5);
+	--tint-1: rgba(110, 162, 255, 0.08);
+	--tint-2: rgba(75, 200, 187, 0.05);
 }
 
 *,
@@ -61,12 +97,11 @@ body {
 	line-height: 1.75;
 	background-color: var(--paper);
 	background-image:
-		radial-gradient(900px 520px at 10% -10%, rgba(196, 111, 134, 0.13), transparent 62%),
-		radial-gradient(760px 480px at 94% -4%, rgba(114, 135, 163, 0.14), transparent 66%),
-		radial-gradient(640px 420px at 50% 108%, rgba(211, 160, 92, 0.08), transparent 72%),
-		radial-gradient(circle at 1px 1px, rgba(44, 39, 43, 0.055) 1px, transparent 0);
-	background-size: auto, auto, auto, 24px 24px;
-	background-attachment: fixed, fixed, fixed, fixed;
+		radial-gradient(880px 520px at 8% -12%, var(--tint-1), transparent 64%),
+		radial-gradient(760px 480px at 96% -6%, var(--tint-2), transparent 68%);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1,
@@ -109,7 +144,7 @@ button {
 
 ::selection {
 	background: var(--accent);
-	color: #fff;
+	color: var(--on-accent);
 }
 
 main {
@@ -141,7 +176,7 @@ main {
 	padding: 10px 18px;
 	border-radius: 999px;
 	background: var(--ink);
-	color: #fff;
+	color: var(--on-ink);
 	text-decoration: none;
 	transition: top 0.25s ease;
 }
@@ -173,59 +208,48 @@ main {
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
-	padding: 12px 24px;
+	padding: 11px 22px;
 	border: 1px solid transparent;
 	border-radius: 999px;
 	font-size: 0.95rem;
 	font-weight: 600;
 	text-decoration: none;
-	transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease,
-		border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.btn:hover {
-	transform: translateY(-2px);
+	transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn--primary {
-	background: var(--ink);
-	color: #fffdf9;
-	box-shadow: 0 14px 30px -16px rgba(var(--shadow-rgb), 0.7);
+	background: var(--accent);
+	border-color: var(--accent);
+	color: var(--on-accent);
 }
 
 .btn--primary:hover {
-	background: #1d181b;
+	background: var(--accent-ink);
+	border-color: var(--accent-ink);
 }
 
 .btn--ghost {
-	background: rgba(255, 253, 249, 0.72);
+	background: var(--card);
 	border-color: var(--line);
 	color: var(--ink);
 }
 
 .btn--ghost:hover {
-	border-color: var(--ink);
-	background: var(--card);
+	border-color: var(--line-strong);
+	background: var(--surface-muted);
 }
 
-.btn--neu {
-	background: var(--paper);
-	border-color: transparent;
+/* 扁平描边按钮：替代原来的新拟物按钮 */
+.btn--outline {
+	background: transparent;
+	border-color: var(--line-strong);
 	color: var(--ink);
-	box-shadow:
-		-5px -5px 12px rgba(255, 253, 249, 0.95),
-		7px 9px 18px rgba(var(--shadow-rgb), 0.14),
-		inset 1px 1px 0 rgba(255, 253, 249, 0.95);
 }
 
-.btn--neu:hover {
-	transform: translateY(-2px);
-	border-color: transparent;
-	background: var(--paper);
-	box-shadow:
-		-7px -7px 16px rgba(255, 253, 249, 1),
-		11px 14px 28px rgba(var(--shadow-rgb), 0.18),
-		inset 1px 1px 0 rgba(255, 253, 249, 1);
+.btn--outline:hover {
+	border-color: var(--accent);
+	background: var(--accent-soft);
+	color: var(--accent-ink);
 }
 
 .page {
@@ -252,18 +276,15 @@ main {
 	background: var(--card);
 	border: 1px solid var(--line);
 	border-radius: var(--radius);
-	box-shadow: var(--shadow-neu);
 	color: var(--ink);
 	text-decoration: none;
 	overflow: hidden;
-	transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
-		border-color 0.35s ease;
+	transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .card:hover {
-	transform: translateY(-6px);
-	border-color: rgba(var(--shadow-rgb), 0.18);
-	box-shadow: var(--shadow-neu-hover);
+	border-color: var(--line-strong);
+	background: var(--paper-soft);
 }
 
 .card-grid {
@@ -300,16 +321,6 @@ main {
 	to {
 		opacity: 1;
 		transform: none;
-	}
-}
-
-@keyframes floatY {
-	0%,
-	100% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-8px);
 	}
 }
 

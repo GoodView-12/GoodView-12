@@ -15,9 +15,11 @@ import HeaderLink from './HeaderLink.astro';
 
 interface Props {
 	locale: Locale;
+	/** true 时导航脱离文档流，悬浮在页面顶部内容（首页头图）之上 */
+	overlay?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, overlay = false } = Astro.props;
 const copy = t[locale];
 const currentPath = stripBase(Astro.url.pathname);
 // 404 页面没有对应的多语言版本，语言切换回到各语言首页。
@@ -31,7 +33,7 @@ const langLinks = LOCALES.map((code) => ({
 }));
 ---
 
-<header class="site-header" data-header>
+<header class:list={['site-header', { 'site-header--overlay': overlay }]} data-header>
 	<div class="nav-island container">
 		<span class="brand">{copy.meta.brandName}</span>
 
@@ -40,6 +42,35 @@ const langLinks = LOCALES.map((code) => ({
 				<HeaderLink href={localizePath(item.path, locale)}>{copy.nav[item.key]}</HeaderLink>
 			))}
 		</nav>
+
+		<button
+			class="theme-toggle"
+			type="button"
+			data-theme-toggle
+			aria-label={copy.a11y.themeToggle}
+			title={copy.a11y.themeToggle}
+			aria-pressed="false"
+		>
+			<svg
+				class="theme-toggle__icon theme-toggle__icon--sun"
+				viewBox="0 0 24 24"
+				aria-hidden="true"
+				focusable="false"
+			>
+				<circle cx="12" cy="12" r="4.2"></circle>
+				<path
+					d="M12 2.6v2.1M12 19.3v2.1M4.1 12H2M22 12h-2.1M5.9 5.9 4.4 4.4M19.6 19.6l-1.5-1.5M18.1 5.9l1.5-1.5M4.4 19.6l1.5-1.5"
+				></path>
+			</svg>
+			<svg
+				class="theme-toggle__icon theme-toggle__icon--moon"
+				viewBox="0 0 24 24"
+				aria-hidden="true"
+				focusable="false"
+			>
+				<path d="M20.2 13.6A8.6 8.6 0 0 1 10.4 3.8a8.6 8.6 0 1 0 9.8 9.8Z"></path>
+			</svg>
+		</button>
 
 		<div class="lang-switch" role="group" aria-label={copy.a11y.langSwitch}>
 			{langLinks.map((link) => (
@@ -61,10 +92,22 @@ const langLinks = LOCALES.map((code) => ({
 </header>
 
 <script>
+	import { getActiveTheme, toggleTheme, watchSystemTheme } from '../scripts/theme';
+
 	const header = document.querySelector('[data-header]');
 	const syncHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 12);
 	syncHeader();
 	window.addEventListener('scroll', syncHeader, { passive: true });
+
+	const themeToggle = document.querySelector('[data-theme-toggle]');
+	const syncThemeToggle = (theme = getActiveTheme()) => {
+		if (!(themeToggle instanceof HTMLButtonElement)) return;
+		themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+	};
+
+	syncThemeToggle();
+	themeToggle?.addEventListener('click', () => syncThemeToggle(toggleTheme()));
+	watchSystemTheme((theme) => syncThemeToggle(theme));
 
 	document.querySelectorAll('[data-lang-link]').forEach((link) => {
 		const url = new URL(link.getAttribute('href') || '/', window.location.origin);
@@ -82,31 +125,39 @@ const langLinks = LOCALES.map((code) => ({
 		pointer-events: none;
 	}
 
+	/* 首页：导航浮在头图之上，头图从页面最顶部开始 */
+	.site-header--overlay {
+		position: fixed;
+		top: 0;
+		right: 0;
+		left: 0;
+	}
+
 	.nav-island {
 		display: flex;
 		align-items: center;
-		gap: 16px;
+		gap: 14px;
 		max-width: 1040px;
-		padding: 9px 12px 9px 22px;
+		padding: 8px 10px 8px 20px;
 		pointer-events: auto;
-		background: var(--paper);
-		border: 1px solid rgba(255, 253, 249, 0.8);
-		border-radius: 22px;
-		box-shadow:
-			-7px -7px 16px rgba(255, 253, 249, 0.95),
-			12px 14px 30px rgba(var(--shadow-rgb), 0.14),
-			inset 0 1px 0 rgba(255, 253, 249, 0.85);
-		transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+		background: var(--card);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		transition: background 0.2s ease, border-color 0.2s ease;
 	}
 
 	.site-header.is-scrolled .nav-island {
-		background: rgba(246, 241, 233, 0.92);
-		backdrop-filter: blur(14px) saturate(1.15);
-		-webkit-backdrop-filter: blur(14px) saturate(1.15);
-		box-shadow:
-			-6px -6px 14px rgba(255, 253, 249, 0.85),
-			10px 16px 36px rgba(var(--shadow-rgb), 0.18),
-			inset 0 1px 0 rgba(255, 253, 249, 0.75);
+		background: var(--header-surface);
+		border-color: var(--line-strong);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+	}
+
+	/* 浮在头图上时保持半透明，让图片透出一点层次 */
+	.site-header--overlay .nav-island {
+		background: var(--header-surface);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 	}
 
 	.brand {
@@ -117,8 +168,50 @@ const langLinks = LOCALES.map((code) => ({
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		white-space: nowrap;
-		text-shadow: 0 1px 0 #fffdf9;
 		user-select: none;
+	}
+
+	.theme-toggle {
+		display: inline-flex;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		width: 34px;
+		height: 34px;
+		padding: 0;
+		border: 1px solid var(--line);
+		border-radius: var(--radius-sm);
+		background: var(--card);
+		color: var(--ink-soft);
+		transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+	}
+
+	.theme-toggle:hover {
+		border-color: var(--accent);
+		background: var(--accent-soft);
+		color: var(--accent-ink);
+	}
+
+	.theme-toggle__icon {
+		width: 17px;
+		height: 17px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.theme-toggle__icon--moon {
+		display: none;
+	}
+
+	:global(html[data-theme='dark']) .theme-toggle__icon--sun {
+		display: none;
+	}
+
+	:global(html[data-theme='dark']) .theme-toggle__icon--moon {
+		display: block;
 	}
 
 	.nav-links {
@@ -141,12 +234,10 @@ const langLinks = LOCALES.map((code) => ({
 		flex-shrink: 0;
 		align-items: center;
 		gap: 2px;
-		padding: 4px;
+		padding: 3px;
+		border: 1px solid var(--line);
 		border-radius: 999px;
-		background: var(--paper);
-		box-shadow:
-			inset 3px 3px 7px rgba(var(--shadow-rgb), 0.1),
-			inset -3px -3px 7px rgba(255, 253, 249, 0.95);
+		background: var(--surface-muted);
 	}
 
 	.lang-switch__item {
@@ -157,19 +248,17 @@ const langLinks = LOCALES.map((code) => ({
 		font-weight: 700;
 		letter-spacing: 0.04em;
 		text-decoration: none;
-		transition: color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+		transition: color 0.2s ease, background 0.2s ease;
 	}
 
 	.lang-switch__item:hover {
 		color: var(--ink);
+		background: var(--card);
 	}
 
 	.lang-switch__item.is-active {
 		color: var(--accent-ink);
-		background: var(--paper);
-		box-shadow:
-			2px 2px 5px rgba(var(--shadow-rgb), 0.14),
-			-2px -2px 5px rgba(255, 253, 249, 0.95);
+		background: var(--accent-soft);
 	}
 
 	@media (max-width: 860px) {
@@ -193,7 +282,7 @@ const langLinks = LOCALES.map((code) => ({
 		.nav-island {
 			gap: 8px;
 			padding: 7px 7px 7px 12px;
-			border-radius: 18px;
+			border-radius: var(--radius);
 		}
 
 		.brand {
@@ -201,8 +290,13 @@ const langLinks = LOCALES.map((code) => ({
 			letter-spacing: 0.01em;
 		}
 
+		.theme-toggle {
+			width: 30px;
+			height: 30px;
+		}
+
 		.lang-switch {
-			padding: 3px;
+			padding: 2px;
 		}
 
 		.lang-switch__item {
@@ -230,8 +324,12 @@ const langLinks = LOCALES.map((code) => ({
 			margin-left: auto;
 		}
 
-		.nav-links {
+		.theme-toggle {
 			order: 3;
+		}
+
+		.nav-links {
+			order: 4;
 			flex: 1 0 100%;
 			justify-content: center;
 			gap: 2px;
